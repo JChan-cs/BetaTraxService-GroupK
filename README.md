@@ -49,14 +49,24 @@ Service Structure:
             <td><a href="https://github.com/mct61674"><img src="https://avatars.githubusercontent.com/u/185241369?v=4" alt="Tam Ho Chun" width=50></a></td>
         </tr>
         <tr>
-            <td>Chung Shing Hei</td>
-            <td>3036216760</td>
-            <td><a href="https://github.com/MaxChungsh"><img src="https://avatars.githubusercontent.com/u/70740754" alt="Chung Shing Hei" width=50></a></td>
+            <td>Lam Cheung Lam Nicholas</td>
+            <td>3036220498</td>
+            <td><a href="https://github.com/SuperNicky12"><img src="https://avatars.githubusercontent.com/u/182529378?v=4" alt="Lam Cheung Lam Nicholas" width=50></a></td>
         </tr>
         <tr>
-            <td>Chan Hin Chun</td>
+            <td>Chan Hin Chun Jensen</td>
             <td>3036218017</td>
-            <td><a href="https://github.com/JChan-cs"><img src="https://avatars.githubusercontent.com/u/158464686" alt="Chan Hin Chun" width=50></a></td>
+            <td><a href="https://github.com/JChan-cs"><img src="https://avatars.githubusercontent.com/u/158464686" alt="Chan Hin Chun Jensen" width=50></a></td>
+        </tr>
+        <tr>
+            <td>Wong King Wang</td>
+            <td>3036221040</td>
+            <td><a href="https://github.com/KWHK0626"><img src="https://avatars.githubusercontent.com/u/186687273?v=4" alt="Wong King Wang" width=50></a></td>
+        </tr>
+        <tr>
+            <td>Ho Kin Sang</td>
+            <td>3036080002</td>
+            <td><a href="https://github.com/Sangho12"><img src="https://avatars.githubusercontent.com/u/159551341?v=4" alt="Ho Kin Sang" width=50></a></td>
         </tr>
     </tbody>
 </table>
