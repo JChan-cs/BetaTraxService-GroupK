@@ -25,9 +25,40 @@ Service Structure:
 2. **Tester Submission View:** Area to allow Tester to submit defect report and optional email.
 3. **Defect List(Evaluation)** List that allows Product Owners to check on submitted defect reports. Product Owners can click on a report to accept or reject it.
 4. **Product Owner Evaluation View:** Area to allow Product Owners to accepet or reject report.
-5. **Defect List(Assignment):** List that allows Developers to check on all accepted defect reports. Developers can click on chosen reports to assign themselves to the corresponding defect.
-6. **Defect List(Assigned):** List that allows Developers to check on all defect reports they have been assigned to.
-7. **Tester Retest View:** Area to allow Tester to comment on defect after a Developer modified the code.
-8. **Product Owner Confirm View:** Area to allow Product Owner to marks defect as solved or reopen if failed.
-9. **Comment Section:** Section that display progress on all defects. Product Owners and Developer can click on individual comments to enact Evaluation/Assignment/Vertification.
+5. **Product Owner View:** List that allow Product Owners to keep track of reports that can be assigned.
+6. **Defect List(Assignment):** List that allows Developers to check on all accepted defect reports. Developers can click on chosen reports to assign themselves to the corresponding defect.
+7. **Defect List(Assigned):** List that allows Developers to check on all defect reports they have been assigned to.
+8. **Tester Retest View:** Area to allow Tester to comment on defect after a Developer modified the code.
+9. **Product Owner Confirm View:** Area to allow Product Owner to marks defect as solved or reopen if failed.
+10. **Comment Section:** Section that display progress on all defects. Product Owners and Developer can click on individual comments to enact Evaluation/Assignment/Vertification.
 
+## Team Members
+
+<!-- markdownlint-disable MD033 -->
+
+<table>
+    <tbody>
+        <tr>
+            <th>Name</th>
+            <th>UID</th>
+            <th>Profile</th>
+        </tr>
+        <tr>
+            <td>Tam Ho Chun</td>
+            <td>3036218342</td>
+            <td><a href="https://github.com/mct61674"><img src="https://avatars.githubusercontent.com/u/185241369?v=4" alt="Tam Ho Chun" width=50></a></td>
+        </tr>
+        <tr>
+            <td>Chung Shing Hei</td>
+            <td>3036216760</td>
+            <td><a href="https://github.com/MaxChungsh"><img src="https://avatars.githubusercontent.com/u/70740754" alt="Chung Shing Hei" width=50></a></td>
+        </tr>
+        <tr>
+            <td>Chan Hin Chun</td>
+            <td>3036218017</td>
+            <td><a href="https://github.com/JChan-cs"><img src="https://avatars.githubusercontent.com/u/158464686" alt="Chan Hin Chun" width=50></a></td>
+        </tr>
+    </tbody>
+</table>
+
+<!-- markdownlint-enable MD033-->
