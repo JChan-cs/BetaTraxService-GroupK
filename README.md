@@ -7,6 +7,8 @@ This repository contains the code and resources for our group project focused on
 testing programmes by managing the beta defect resolution workflow and tracking reported defects through their lifecycles. 
 The service will be used by the Product Owner, Developers and Beta Testers.
 
+---
+
 ## Project Overview
 
 Beta Testing Workflow:
@@ -73,9 +75,11 @@ Service Structure:
 
 <!-- markdownlint-enable MD033-->
 
+---
+
 # Repository structure
 
 # References
 
 ---
-[Back to top](#️-betatrax-software-as-a-service-saas-for-beta-testing)
+
