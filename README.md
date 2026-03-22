@@ -1,4 +1,4 @@
-# BetaTraxService: Software as a Service (SaaS) for Beta Testing
+# BetaTrax: Software as a Service for Beta Testing
 
 **COMP3297 Software Engineering - Group Project (Summer 2026)**
 The University of Hong Kong
@@ -78,4 +78,4 @@ Service Structure:
 # References
 
 ---
-[Back to top](#️-betatraxservice:-software-as-a-service-saas-for-beta-testing)
+[Back to top](#️-betatrax:-software-as-a-service-for-beta-testing)
