@@ -5,7 +5,8 @@ description = "Default template for PDM package"
 authors = [
     {name = "Jchan", email = "u3621801@connect.hku.hk"},
     {name = "King", email = "kwhk0626@connect.hku.hk"},
-    {name = "Nicholas", email = "nickyl12@connect.hku.hk"}
+    {name = "Nicholas", email = "nickyl12@connect.hku.hk"},
+    {name = "Joe", email = "sangho12@connect.hku.hk"}
 ]
 dependencies = ["Django==6.0.*"]
 requires-python = ">=3.12"
