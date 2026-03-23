@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>New Defect Reports - BetaTrax</title>
+</head>
+<body>
+    <h1>New Defect Reports (Pending Evaluation)</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Tester ID</th>
+                <th>Submitted Time</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for defect in defects %}
+            <tr>
+                <td>{{ defect.id }}</td>
+                <td>{{ defect.title }}</td>
+                <td>{{ defect.tester_id }}</td>
+                <td>{{ defect.submitted_at }}</td>
+                <td>{{ defect.status }}</td>
+                <td>
+                    <a href="#">Evaluate</a> <!-- Link to detail page (to be added later) -->
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6">No new defect reports.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
