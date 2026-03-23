@@ -1,5 +1,4 @@
 from django.db import models
-from sympy import solve_univariate_inequality
 
 # Create your models here.
 class ProductOwner(models.Model):
