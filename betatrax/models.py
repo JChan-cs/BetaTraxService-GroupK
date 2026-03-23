@@ -1,4 +1,5 @@
 from django.db import models
+from sympy import solve_univariate_inequality
 
 # Create your models here.
 class ProductOwner(models.Model):
@@ -15,6 +16,8 @@ class BetaTester(models.Model):
 
 class DefectReport(models.Model):
     name = models.CharField(max_length=200)
-    id =  models.CharField(max_length=200)
+    defect_id =  models.CharField(max_length=200)
     time = models.DateTimeField()
-    status = models.CharField(max_length=10)
+    status = models.CharField(max_length=20)
+    severity = models.CharField(max_length=20)
+    priority = models.CharField(max_length=20)
