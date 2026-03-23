@@ -7,6 +7,10 @@ class ProductOwner(models.Model):
 class Developer(models.Model):
     name = models.CharField(max_length=200)
     assigned_id = models.CharField(max_length=200)
+    assigned_title = models.CharField(max_length=200)
+    assigned_status = models.CharField(max_length=20)
+    assigned_severity = models.CharField(max_length=20)
+    assigned_priority = models.CharField(max_length=20)
 
 class BetaTester(models.Model):
     name = models.CharField(max_length=200)
