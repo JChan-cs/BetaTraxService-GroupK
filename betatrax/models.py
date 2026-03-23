@@ -6,7 +6,7 @@ class ProductOwner(models.Model):
 
 class Developer(models.Model):
     name = models.CharField(max_length=200)
-    assigned_id = models.CharField(max_length=200)
+    assigned_id = models.CharField(max_length=20)
     assigned_title = models.CharField(max_length=200)
     assigned_status = models.CharField(max_length=20)
     assigned_severity = models.CharField(max_length=20)
@@ -14,12 +14,12 @@ class Developer(models.Model):
 
 class BetaTester(models.Model):
     name = models.CharField(max_length=200)
-    tester_id = models.CharField(max_length=200)
+    tester_id = models.CharField(max_length=20)
     email = models.CharField(max_length=200)
 
 class DefectReport(models.Model):
     name = models.CharField(max_length=200)
-    defect_id =  models.CharField(max_length=200)
+    defect_id = models.CharField(max_length=20)
     time = models.DateTimeField()
     status = models.CharField(max_length=20)
     severity = models.CharField(max_length=20)
