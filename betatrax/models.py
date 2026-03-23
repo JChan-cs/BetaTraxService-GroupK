@@ -10,6 +10,7 @@ class Developer(models.Model):
 
 class BetaTester(models.Model):
     name = models.CharField(max_length=200)
+    tester_id = models.CharField(max_length=200)
 
 class DefectReport(models.Model):
     name = models.CharField(max_length=200)
