@@ -1,5 +1,5 @@
 from django.db import models
-class DefectsReport(models.Model):
+class DefectReport(models.Model):
   StatusC = [
     ("New","New"),
     ("Open", "Open"),
@@ -35,6 +35,6 @@ class DefectsReport(models.Model):
   CreatedTime = models.DateTimeField(auto_now_add = True)
   UpdatedTime = models.DateTimeField(auto_now = True)
 
-def __str__(self):
+  def __str__(self):
         return f"{self.ReportTitle} - {self.Status}"
   
