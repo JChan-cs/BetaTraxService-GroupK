@@ -28,13 +28,13 @@ class DefectsReport(models.Model):
   Steps = models.TextField()
   TesterID = models.CharField(max_length = 30)
   Email = models.EmailField(blank = True, null = True)
-  Status = models.CharField(max_length = 20, choice = StatusC, default = "New")
-  Severity = models.CharField(max_length = 20, choice = SeverityC)
-  Priority = models.CharField(max_length = 20, choice = PriorityC)
+  Status = models.CharField(max_length = 20, choices = StatusC, default = "New")
+  Severity = models.CharField(max_length = 20, choices = SeverityC)
+  Priority = models.CharField(max_length = 20, choices = PriorityC)
   AssignedPerson = models.CharField(max_length = 30)
-  CreatedTime = models.DataTimeField(auto_now_added = True)
-  UpdatedTime = models.DataTimeField(auto_now = True)
+  CreatedTime = models.DateTimeField(auto_now_add = True)
+  UpdatedTime = models.DateTimeField(auto_now = True)
 
 def __str__(self):
-        return f"{self.ReportTitle} - {self.status}"
+        return f"{self.ReportTitle} - {self.Status}"
   
