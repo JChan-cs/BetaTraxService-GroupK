@@ -18,8 +18,8 @@ class DefectsReport(models.Model):
   ("Low", "Low")]
   PriorityC = [
   ("Critical", "Critical"),
-  ("Major", "Major"),
-  ("Minor", "Minor"),
+  ("High", "High"),
+  ("Medium", "Medium"),
   ("Low", "Low")]
   ProductID = models.CharField(max_length = 30)
   Version = models.CharField(max_length = 30)
