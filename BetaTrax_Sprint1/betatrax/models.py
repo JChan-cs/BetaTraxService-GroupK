@@ -6,15 +6,28 @@ from django.utils import timezone
 
 # Create your models here.
 class ProductOwner(models.Model):
-    name = models.CharField(max_length=200)
+    username = models.CharField(max_length=200)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"ProductOwner: {self.user.username}"
 
 class Developer(models.Model):
-    name = models.CharField(max_length=200)
+    username = models.CharField(max_length=200)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"ProductOwner: {self.user.username}"
 
 class BetaTester(models.Model):
-    name = models.CharField(max_length=200)
+    username = models.CharField(max_length=200)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     tester_id = models.CharField(max_length=20)
     email = models.CharField(max_length=200)
+
+    def __str__(self):
+        return f"ProductOwner: {self.user.username}"
+    
 
 class DefectReport(models.Model):
     STATUS_CHOICES = [
@@ -36,11 +49,12 @@ class DefectReport(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
     created_at = models.DateTimeField(default=timezone.now)
-    status = models.CharField(max_length=20, status=STATUS_CHOICES, default="NEW")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="NEW")
+    report_id = models.CharField(max_length=20)
 
     # Relations
     created_by = models.ForeignKey(
-        ProductOwner, related_name="reports_created", on_delete=models.CASCADE
+        BetaTester, related_name="reports_created", on_delete=models.CASCADE
     )
     assigned_to = models.ForeignKey(
         Developer, related_name="reports_assigned", on_delete=models.SET_NULL, null=True, blank=True
@@ -63,21 +77,15 @@ class DefectReport(models.Model):
     # --- Developer actions ---
     def assign_to_self(self, user):
         if user.groups.filter(name="Developer").exists():
-            self.assigned_to = user
-            self.status = "ASSIGNED"
+            try:
+                dev = Developer.objects.get(user=user)
+            except Developer.DoesNotExist:
+                return False
+            self.assigned_to = dev
+            self.status = self.STATUS_ASSIGNED
             self.save()
+            return True
 
-# --- Utility function to create groups if not exist ---
-def create_default_groups():
-    groups = ["ProductOwner", "Developer", "BetaTester"]
-    for group_name in groups:
-        Group.objects.get_or_create(name=group_name)
-
-class Assign(models.Model):
-    time = models.DateTimeField()
-    status = models.CharField(max_length=10)
-    developer = models.ForeignKey(Developer, on_delete=models.CASCADE)
-    reports = models.ManyToManyField(DefectReport, through='Assignreport')
 
 
 
