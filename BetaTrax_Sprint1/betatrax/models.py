@@ -1,8 +1,7 @@
 from django.db import models
-
-from django.db import models
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User
 from django.utils import timezone
+import uuid
 
 # Create your models here.
 class ProductOwner(models.Model):
@@ -38,19 +37,27 @@ class DefectReport(models.Model):
         ("RESOLVED", "Resolved"),
     ]
 
-    SEVERITY = [
-
+    SEVERITY_CHOICES = [
+        ("CRITICAL", "Critical"),
+        ("MAJOR", "Major"),
+        ("MINOR", "Minor"),
+        ("LOW", "Low"),
     ]
 
-    PRIORITY = [
-
+    PRIORITY_CHOICES = [
+        ("CRITICAL", "Critical"),
+        ("HIGH", "High"),
+        ("MEDIUM", "Medium"),
+        ("LOW", "Low"),
     ]
 
     title = models.CharField(max_length=255)
     description = models.TextField()
     created_at = models.DateTimeField(default=timezone.now)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="NEW")
-    report_id = models.CharField(max_length=20)
+    report_id = models.CharField(max_length=36, unique=True, editable=False, default=uuid.uuid4)
+    severity = models.CharField(max_length=10, choices=SEVERITY_CHOICES, default="MINOR")
+    priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default="MEDIUM")
 
     # Relations
     created_by = models.ForeignKey(
