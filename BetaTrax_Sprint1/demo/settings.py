@@ -32,6 +32,8 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'betatrax.apps.BetatraxConfig',
+    'defects.apps.DefectsConfig',
+    'comments.apps.CommentsConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
