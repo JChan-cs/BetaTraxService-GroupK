@@ -34,7 +34,9 @@ class DefectReport(models.Model):
         ("OPENED", "Opened"),
         ("REJECTED", "Rejected"),
         ("ASSIGNED", "Assigned"),
+        ("FIXED", "Fixed"),
         ("RESOLVED", "Resolved"),
+        ("REOPENED", "Reopened"),
     ]
 
     SEVERITY_CHOICES = [
