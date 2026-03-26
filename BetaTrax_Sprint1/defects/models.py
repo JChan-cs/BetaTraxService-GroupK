@@ -24,7 +24,7 @@ class DefectReport(models.Model):
   ProductID = models.CharField(max_length = 30)
   Version = models.CharField(max_length = 30)
   ReportTitle = models.CharField(max_length = 30)
-  Description = models.TextField()
+  Description = models.CharField(max_length=200)
   Steps = models.TextField()
   TesterID = models.CharField(max_length = 30)
   Email = models.EmailField(blank = True, null = True)
