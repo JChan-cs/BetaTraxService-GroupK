@@ -6,15 +6,20 @@
   <title>All Comments</title>
   <style>
     body { font-family: Arial, sans-serif; margin: 24px; color: #222; }
-    header { margin-bottom: 20px; }
-    table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
-    th, td { text-align: left; padding: 8px; border-bottom: 1px solid #e0e0e0; }
-    th { background: #f7f7f7; font-weight: 600; }
-    .pagination { display: flex; gap: 12px; align-items: center; margin-top: 12px; }
-    .pagination a { text-decoration: none; color: #0366d6; }
-    .no-data { color: #666; padding: 12px 0; }
-    footer { margin-top: 32px; font-size: 0.9em; color: #666; }
     .container { max-width: 980px; margin: 0 auto; }
+    header { margin-bottom: 18px; }
+    form.inline { display:flex; gap:8px; align-items:center; margin-bottom:12px; }
+    input[type="text"], input[type="date"], textarea { padding:8px; border:1px solid #ccc; border-radius:4px; }
+    textarea { min-height:80px; resize:vertical; }
+    button { padding:8px 12px; border:none; background:#0366d6; color:#fff; border-radius:4px; cursor:pointer; }
+    table { width:100%; border-collapse:collapse; margin-top:12px; }
+    th, td { text-align:left; padding:8px; border-bottom:1px solid #eaeaea; }
+    th { background:#f7f7f7; font-weight:600; }
+    .pagination { display:flex; gap:12px; align-items:center; margin-top:12px; }
+    .search-row { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
+    .search-row input[type="text"] { flex:1 1 300px; }
+    .no-data { color:#666; padding:12px 0; }
+    .flash { padding:8px 12px; background:#e6ffed; border:1px solid #b7f0c6; margin-bottom:12px; border-radius:4px; }
   </style>
 </head>
 <body>
@@ -24,7 +29,20 @@
       <p>Recent feedback and discussion.</p>
     </header>
 
-    <table class="table">
+    {% if messages %}
+      {% for message in messages %}
+        <div class="flash">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+
+    <form method="get" class="search-row" role="search" aria-label="Search comments">
+      <input type="text" name="q" placeholder="Search author or text" value="{{ request.GET.q|default_if_none:'' }}">
+      <input type="date" name="date" value="{{ request.GET.date|default_if_none:'' }}">
+      <button type="submit">Search</button>
+      <a href="{% url 'comment-list' %}" style="align-self:center; margin-left:8px; text-decoration:none; color:#0366d6;">Clear</a>
+    </form>
+
+    <table class="table" aria-live="polite">
       <thead>
         <tr>
           <th>Author</th>
@@ -36,7 +54,7 @@
         {% for comment in comments %}
           <tr>
             <td>{{ comment.author }}</td>
-            <td>{{ comment.created_at|date:"d/m/Y" }}</td>
+            <td>{{ comment.created_at|date:"d/m/Y H:i" }}</td>
             <td>
               <a href="{% url 'comment-detail' comment.pk %}">
                 {{ comment.text|truncatechars:80 }}
@@ -52,18 +70,27 @@
     {% if is_paginated %}
       <div class="pagination" role="navigation" aria-label="Pagination">
         {% if page_obj.has_previous %}
-          <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+          <a href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}{% if request.GET.date %}date={{ request.GET.date }}&{% endif %}page={{ page_obj.previous_page_number }}">Previous</a>
         {% endif %}
         <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
         {% if page_obj.has_next %}
-          <a href="?page={{ page_obj.next_page_number }}">Next</a>
+          <a href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}{% if request.GET.date %}date={{ request.GET.date }}&{% endif %}page={{ page_obj.next_page_number }}">Next</a>
         {% endif %}
       </div>
     {% endif %}
 
-    <footer>
-      <p>© {{ now|date:"Y" }} My Site</p>
+    <form method="post" class="inline" action="{% url 'comment-list' %}">
+      {% csrf_token %}
+      <input type="text" name="author" placeholder="Your name" required value="{{ request.POST.author|default_if_none:'' }}">
+      <textarea name="text" placeholder="Write a comment..." required>{{ request.POST.text|default_if_none:'' }}</textarea>
+      <button type="submit">Add Comment</button>
+    </form>
+
+    <footer style="margin-top:28px; color:#777; font-size:0.9rem;">
+      <small>© {{ now|date:"Y" }} BetaTrax</small>
     </footer>
   </div>
+
 </body>
 </html>
+
