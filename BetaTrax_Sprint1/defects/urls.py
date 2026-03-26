@@ -4,4 +4,6 @@ from .view import DefectReportViewSet
 
 router = DefaultRouter()
 router.register(r"reports", DefectReportViewSet)
-urlpatterns = [path('',include(router.urls)),]
+urlpatterns = [
+    path('',include(router.urls)),
+    ]

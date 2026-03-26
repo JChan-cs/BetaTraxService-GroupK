@@ -1,7 +1,9 @@
-from rest_framework import viewsets, status, filters
+from rest_framework import viewsets, status
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import action
 from .models import DefectReport
-from .serializers import DefectReportSerializer
+from .serializers import DefectReportSerializer, DefectReportStatusSerializer
 
 class DefectReportViewSet(viewsets.ModelViewSet):
   queryset = DefectReport.objects.all()
@@ -19,4 +21,22 @@ class DefectReportViewSet(viewsets.ModelViewSet):
     serializers.is_valid(raise_exception = True)
     self.perform_create(serializers)
     return Response(serializers.data, status = status.HTTP_201_CREATED)
-    
+
+  @action(detail = True, methods = ["patch"], url_path = "status", permission_classes = [IsAuthenticated])
+  def change_status(self, request, pk = None):
+    defect = self.get_object()
+    serializer = DefectReportStatusSerializer(
+      defect,
+      data = request.data,
+      context = {"request": request},
+      partial = True,
+    )
+    serializer.is_valid(raise_exception = True)
+    serializer.save()
+    return Response(
+      {
+        "message": f"Defect status updated to {defect.Status}.",
+        "data": serializer.data,
+      },
+      status = status.HTTP_200_OK,
+    )
