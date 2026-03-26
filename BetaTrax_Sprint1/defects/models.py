@@ -31,7 +31,6 @@ class DefectReport(models.Model):
   Status = models.CharField(max_length = 20, choices = StatusC, default = "New")
   Severity = models.CharField(max_length = 20, choices = SeverityC)
   Priority = models.CharField(max_length = 20, choices = PriorityC)
-  AssignedPerson = models.CharField(max_length = 30)
   CreatedTime = models.DateTimeField(auto_now_add = True)
   UpdatedTime = models.DateTimeField(auto_now = True)
 
