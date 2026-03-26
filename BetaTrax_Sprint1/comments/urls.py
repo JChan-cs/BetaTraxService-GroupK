@@ -4,9 +4,10 @@ from .api_views import CommentViewSet
 from . import views
 
 router = DefaultRouter()
-router.register(r'comments', CommentViewSet, basename='comment')
+router.register(r'comments', CommentViewSet, basename='api-comment')
 
 urlpatterns = [
     path('', views.CommentListView.as_view(), name='comment-list'),       
     path('<int:pk>/', views.CommentDetailView.as_view(), name='comment-detail'),  
+    path('api/', include(router.urls)),
 ]

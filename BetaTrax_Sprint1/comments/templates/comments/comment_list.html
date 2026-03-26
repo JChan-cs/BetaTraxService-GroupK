@@ -10,7 +10,7 @@
     header { margin-bottom: 18px; }
     form.inline { display:flex; gap:8px; align-items:center; margin-bottom:12px; }
     input[type="text"], input[type="date"], textarea { padding:8px; border:1px solid #ccc; border-radius:4px; }
-    textarea { min-height:80px; resize:vertical; }
+    textarea { min-height:80px; resize:horizontal; }
     button { padding:8px 12px; border:none; background:#0366d6; color:#fff; border-radius:4px; cursor:pointer; }
     table { width:100%; border-collapse:collapse; margin-top:12px; }
     th, td { text-align:left; padding:8px; border-bottom:1px solid #eaeaea; }
@@ -79,12 +79,16 @@
       </div>
     {% endif %}
 
-    <form method="post" class="inline" action="{% url 'comment-list' %}">
-      {% csrf_token %}
-      <input type="text" name="author" placeholder="Your name" required value="{{ request.POST.author|default_if_none:'' }}">
-      <textarea name="text" placeholder="Write a comment..." required>{{ request.POST.text|default_if_none:'' }}</textarea>
-      <button type="submit">Add Comment</button>
-    </form>
+    {% if user.is_authenticated %}
+      <form method="post" class="inline" action="{% url 'comment-list' %}">
+        {% csrf_token %}
+        <p>Posting as: <strong>{{ user.username }}</strong></p>
+        <textarea name="text" placeholder="Write a comment..." required></textarea>
+        <button type="submit">Add Comment</button>
+      </form>
+    {% else %}
+      <p><a href="/admin/login/">Log in</a> to join the discussion.</p>
+    {% endif %}
 
     <footer style="margin-top:28px; color:#777; font-size:0.9rem;">
       <small>© {{ now|date:"Y" }} BetaTrax</small>
