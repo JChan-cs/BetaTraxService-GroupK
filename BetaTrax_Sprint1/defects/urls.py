@@ -5,5 +5,5 @@ from .views import DefectReportViewSet
 router = DefaultRouter()
 router.register(r"reports", DefectReportViewSet)
 urlpatterns = [
-    path('',include(router.urls)),
-    ]
+    path("", include(router.urls)),
+]
