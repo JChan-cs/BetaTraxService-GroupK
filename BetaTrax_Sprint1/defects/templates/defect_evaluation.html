@@ -1,0 +1,101 @@
+{% extends "base.html" %} {% load static %} {% block content %}
+<h2>Defect Report #{{ defect.id }} — Status: {{ defect.Status }}</h2>
+<p>
+  <a class="btn" href="#comments">Go to comments</a>
+  <a class="btn" href="{% url 'comment-list' %}" style="margin-left: 0.5em"
+    >All comments</a
+  >
+</p>
+<div>
+  <h3>{{ defect.ReportTitle }}</h3>
+  <p><strong>Description:</strong> {{ defect.Description }}</p>
+  <p><strong>Steps to Reproduce:</strong><br />{{ defect.Steps|linebreaks }}</p>
+  <p><strong>Tester ID:</strong> {{ defect.TesterID }}</p>
+  {% if defect.Email %}
+  <p><strong>Email:</strong> {{ defect.Email }}</p>
+  {% endif %}
+  <p><strong>Created:</strong> {{ defect.CreatedTime }}</p>
+</div>
+
+<hr />
+<form method="post">
+  {% csrf_token %}
+  <div>
+    <label for="severity">Severity</label>
+    <select name="severity" id="severity">
+      {% for val,label in severity_choices %}
+      <option
+        value="{{ val }}"
+        {%
+        if
+        defect.Severity=""
+        ="val"
+        %}selected{%
+        endif
+        %}
+      >
+        {{ label }}
+      </option>
+      {% endfor %}
+    </select>
+  </div>
+  <div>
+    <label for="priority">Priority</label>
+    <select name="priority" id="priority">
+      {% for val,label in priority_choices %}
+      <option
+        value="{{ val }}"
+        {%
+        if
+        defect.Priority=""
+        ="val"
+        %}selected{%
+        endif
+        %}
+      >
+        {{ label }}
+      </option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div style="margin-top: 1em">
+    <button type="submit" name="accept">Accept & Open</button>
+    <button type="submit" name="reject">Reject</button>
+    <div style="display: inline-block; margin-left: 1em">
+      <button type="submit" name="duplicate">Mark as Duplicate</button>
+      <input type="text" name="duplicate_id" placeholder="Original Report ID" />
+    </div>
+  </div>
+
+  <div style="margin-top: 1em">
+    <label for="comment_text">Add comment</label><br />
+    <textarea
+      name="comment_text"
+      id="comment_text"
+      rows="4"
+      cols="60"
+    ></textarea
+    ><br />
+    <button type="submit" name="add_comment">Add Comment</button>
+  </div>
+</form>
+
+<hr />
+<h3 id="comments">Comments</h3>
+<div>
+  {% if comments %}
+  <ul>
+    {% for c in comments %}
+    <li>
+      <strong>{{ c.author.username }}</strong> — {{ c.created_at }}<br />{{
+      c.text|linebreaks }}
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p>No comments yet.</p>
+  {% endif %}
+</div>
+
+{% endblock %}
