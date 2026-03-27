@@ -38,7 +38,6 @@ class DefectReportStatusSerializer(serializers.ModelSerializer):
 
         is_beta_tester = "BetaTester" in group_names
         is_developer = "Developer" in group_names
-        _is_product_owner = "ProductOwner" in group_names  # Reserved for future use
 
         # Allowed status changes and their required roles
         transitions = {
