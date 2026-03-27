@@ -15,25 +15,36 @@ class DefectReportStatusSerializer(serializers.ModelSerializer):
     read_only_fields = ['id']
   
   def validate_Status(self, value):
+    # Check if the DefectReport instance exists
     instance = self.instance
     if instance is None:
       raise serializers.ValidationError("Instance not found.")
-    current_status = instance.Status
     
+    # Get the request from the context
     request = self.context.get("request")
     if request is None:
       raise serializers.ValidationError("Request context is required.")
-    user = request.user
-    group_names = set(user.groups.values_list('name', flat=True))
+
+    current_status = instance.Status
+    target_status = value
+    transition = (current_status, target_status)
+    
+    group_names = set(request.user.groups.values_list('name', flat=True))
     
     is_beta_tester = 'BetaTester' in group_names
     is_developer = 'Developer' in group_names
-    _is_product_owner = 'ProductOwner' in group_names
+    _is_product_owner = 'ProductOwner' in group_names # Reserved for future use
     
-    if is_beta_tester:
-      if current_status != 'Fixed' or value != 'Resolved':
-        raise serializers.ValidationError("Beta Testers can only change status from 'Fixed' to 'Resolved'.")
-    if is_developer:
-      if current_status != 'Assigned' or value != 'Fixed':
-        raise serializers.ValidationError("Developers can only change status from 'Assigned' to 'Fixed'.")
+    # Allowed status changes and their required roles
+    transitions = {
+      ('Assigned', 'Fixed'): {"role": is_developer, "name": "Developer"},
+      ('Fixed', 'Resolved'): {"role": is_beta_tester, "name": "BetaTester"},
+    }
+    
+    rule = transitions.get(transition)
+    if rule is None:
+      raise serializers.ValidationError(f"Invalid status transition from '{current_status}' to '{target_status}'.")
+    
+    if not rule["role"]:
+      raise serializers.ValidationError(f"Only usergroup {rule['name']} can change status from '{current_status}' to '{target_status}'.")
     return value
