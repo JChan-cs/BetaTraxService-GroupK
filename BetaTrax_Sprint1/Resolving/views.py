@@ -13,7 +13,6 @@ class ResultListView(ListView):
 
     def get_queryset(self):
         queryset = super().get_queryset().order_by('-date')
-        
         report_id = self.request.GET.get('report_id')
         search_date = self.request.GET.get('date')
         result = self.request.GET.get('retest_result')
