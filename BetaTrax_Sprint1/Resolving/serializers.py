@@ -6,6 +6,5 @@ class ResolvingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Result
-        # Including the specific fields you requested for the report list
         fields = ['id', 'report_id', 'date', 'retest_result', 'author']
         read_only_fields = ['author', 'date']
