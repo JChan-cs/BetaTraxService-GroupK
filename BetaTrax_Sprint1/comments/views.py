@@ -30,7 +30,6 @@ class CommentListView(ListView):
 
         comment_text = request.POST.get('text')
         if comment_text:
-            # Simply create the comment with the author and text
             Comment.objects.create(
                 author=request.user,
                 text=comment_text

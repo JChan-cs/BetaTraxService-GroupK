@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'betatrax.apps.BetatraxConfig',
     'defects.apps.DefectsConfig',
     'comments.apps.CommentsConfig',
+    'Resolving.apps.ResolvingConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

@@ -21,4 +21,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('defects/', include('defects.urls')),
     path('comments/', include('comments.urls')),
+    path('resolved/', include('Resolving.urls')),
 ]
