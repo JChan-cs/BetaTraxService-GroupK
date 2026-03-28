@@ -50,7 +50,6 @@ class DefectReportViewSet(viewsets.ModelViewSet):
         )
     @action(detail=False, methods=['get'], url_path='dashboard')
     def dashboard(self, request):
-        GET /api/reports/dashboard/
         user = request.user
         links = []
         role = "Anonymous"
