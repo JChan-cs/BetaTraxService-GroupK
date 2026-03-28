@@ -4,12 +4,21 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from comments.models import Comment
+from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
+from django.contrib.auth.decorators import user_passes_test
 
-class ResultListView(ListView):
+def is_product_owner(user):
+    return user.groups.filter(name='ProductOwner').exists()
+
+class ResultListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = Result
     template_name = 'Resolving/retest_list.html'
     context_object_name = 'retest'
     paginate_by = 10
+
+    def test_func(self):
+        # Only PO can access
+        return self.request.user.groups.filter(name='ProductOwner').exists()
 
     def get_queryset(self):
         queryset = super().get_queryset().order_by('-date')
@@ -27,6 +36,7 @@ class ResultListView(ListView):
         return queryset
     
 @login_required
+@user_passes_test(is_product_owner)
 def update_retest_status(request, pk):
     result = get_object_or_404(Result, pk=pk)
 

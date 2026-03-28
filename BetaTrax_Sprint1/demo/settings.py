@@ -31,7 +31,6 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'betatrax.apps.BetatraxConfig',
     'defects.apps.DefectsConfig',
     'comments.apps.CommentsConfig',
     'Resolving.apps.ResolvingConfig',
