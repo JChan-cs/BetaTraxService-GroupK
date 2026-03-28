@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Update Status</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; color: #222; }
+    .container { max-width: 500px; margin: 0 auto; background: #f9f9f9; padding: 30px; border-radius: 8px; border: 1px solid #ddd; }
+    h1 { margin-top: 0; font-size: 1.5em; }
+    .btn-row { display: flex; gap: 15px; margin-top: 20px; }
+    button { padding: 12px 20px; border: none; color: #fff; border-radius: 4px; cursor: pointer; font-size: 1em; font-weight: bold; flex: 1; }
+    .btn-resolved { background: #28a745; }
+    .btn-resolved:hover { background: #218838; }
+    .btn-reopened { background: #d73a49; }
+    .btn-reopened:hover { background: #cb2431; }
+    .cancel { display: block; margin-top: 20px; text-align: center; color: #0366d6; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Update Report {{ result.report_id }}</h1>
+    <p>Current Status: <strong>{{ result.retest_result }}</strong></p>
+    <p style="color: #666; font-size: 0.9em;">Selecting an option below will automatically notify users in the comments.</p>
+    
+    <form method="post">
+      {% csrf_token %}
+      <div class="btn-row">
+        <button type="submit" name="status" value="Resolved" class="btn-resolved">Mark Resolved</button>
+        <button type="submit" name="status" value="Reopened" class="btn-reopened">Mark Reopened</button>
+      </div>
+    </form>
+    
+    <a href="{% url 'result-list' %}" class="cancel">Cancel and return to list</a>
+  </div>
+</body>
+</html>
