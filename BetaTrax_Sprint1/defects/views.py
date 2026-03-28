@@ -48,3 +48,32 @@ class DefectReportViewSet(viewsets.ModelViewSet):
             },
             status=status.HTTP_200_OK,
         )
+    @action(detail=False, methods=['get'], url_path='dashboard')
+    def dashboard(self, request):
+        GET /api/reports/dashboard/
+        user = request.user
+        links = []
+        role = "Anonymous"
+        if user.is_authenticated:
+            if user.groups.filter(name='Tester').exists():
+                role = "Tester"
+                links = [
+                    {"name": "Submit Defect Report", "url": "/api/reports/", "method": "POST"},
+                    {"name": "My Submissions", "url": f'/api/reports/?tester_id={user.id}', "method": "GET"},]
+            elif user.groups.filter(name='ProductOwner').exists():
+                role = "Product Owner"
+                links = [{'name': 'New Reports (Pending Evaluation)', 'url': '/api/reports/?Status=New', "method": "GET"},
+                    {"name": "Open Defects (Ready to Assign)", "url": '/api/reports/?Status=Open', "method": "GET"},
+                    {"name": "All Reports", 'url': '/api/reports/', "method": "GET"},
+                ]
+            elif user.groups.filter(name='Developer').exists():
+                role = 'Developer'
+                links = [{"name": "My Assigned Tasks", "url": "/api/reports/?Status=Assigned", "method": "GET"},{"name": "Open Defects (Available)", 'url': '/api/reports/?Status=Open', "method": 'GET'},]
+            else:
+                role = 'Authenticated User (No Role)'
+                links = [{"name": "View All Reports", 'url': '/api/reports/', 'method': 'GET'},]
+        else:
+            links = [{"name": "Login", "url": "/admin/login/", "method": "GET"},
+                {"name": "View All Reports (Read Only)", "url": "/api/reports/", "method": "GET"},]
+        
+        return Response({'username': user.username if user.is_authenticated else 'Not logged in','role': role,'links': links,})
