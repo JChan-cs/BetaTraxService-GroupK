@@ -76,3 +76,25 @@ class DefectReportViewSet(viewsets.ModelViewSet):
                 {"name": "View All Reports (Read Only)", "url": "/api/reports/", "method": "GET"},]
         
         return Response({'username': user.username if user.is_authenticated else 'Not logged in','role': role,'links': links,})
+    @action(detail=True, methods=['patch'], url_path='accept')
+    def accept(self, request, pk=None):
+        defect = self.get_object()
+        if defect.Status != 'New':
+            return Response:{"error": 'Only New reports can be accepted'},
+        status=status.HTTP_400_BAD_REQUEST)
+        severity = request.data.get("Severity")
+        priority = request.data.get("Priority")
+        if not severity or not priority:
+            return Response(
+                {'error': 'Severity and Priority are required'},
+                status=status.HTTP_400_BAD_REQUEST)
+            defect.Status = "Open"
+            defect.Severity = severity
+            defect.Priority = priority
+            defect.save()
+            return Response({
+                "status": 'accepted',
+                "id": defect.id,
+                "Severity": defect.Severity,
+                "Priority": defect.Priority,
+            }, status=status.HTTP_200_OK)
