@@ -20,12 +20,10 @@ class DefectReportStatusSerializer(serializers.ModelSerializer):
         read_only_fields = ["id"]
 
     def validate_Status(self, value):
-        # Check if the DefectReport instance exists
         instance = self.instance
         if instance is None:
             raise serializers.ValidationError("Instance not found.")
 
-        # Get the request from the context
         request = self.context.get("request")
         if request is None:
             raise serializers.ValidationError("Request context is required.")
@@ -36,10 +34,9 @@ class DefectReportStatusSerializer(serializers.ModelSerializer):
 
         group_names = set(request.user.groups.values_list("name", flat=True))
 
-        is_beta_tester = "BetaTester" in group_names
+        is_beta_tester = "Tester" in group_names
         is_developer = "Developer" in group_names
 
-        # Allowed status changes and their required roles
         transitions = {
             ("Assigned", "Fixed"): {"role": is_developer, "name": "Developer"},
             ("Fixed", "Resolved"): {"role": is_beta_tester, "name": "BetaTester"},
