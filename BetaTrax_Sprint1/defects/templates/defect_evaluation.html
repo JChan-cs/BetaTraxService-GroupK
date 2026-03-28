@@ -1,101 +1,123 @@
-{% extends "base.html" %} {% load static %} {% block content %}
-<h2>Defect Report #{{ defect.id }} — Status: {{ defect.Status }}</h2>
-<p>
-  <a class="btn" href="#comments">Go to comments</a>
-  <a class="btn" href="{% url 'comment-list' %}" style="margin-left: 0.5em"
-    >All comments</a
-  >
-</p>
-<div>
-  <h3>{{ defect.ReportTitle }}</h3>
-  <p><strong>Description:</strong> {{ defect.Description }}</p>
-  <p><strong>Steps to Reproduce:</strong><br />{{ defect.Steps|linebreaks }}</p>
-  <p><strong>Tester ID:</strong> {{ defect.TesterID }}</p>
-  {% if defect.Email %}
-  <p><strong>Email:</strong> {{ defect.Email }}</p>
-  {% endif %}
-  <p><strong>Created:</strong> {{ defect.CreatedTime }}</p>
-</div>
+{% extends "base.html" %}
+{% load static %}
 
-<hr />
-<form method="post">
-  {% csrf_token %}
-  <div>
-    <label for="severity">Severity</label>
-    <select name="severity" id="severity">
-      {% for val,label in severity_choices %}
-      <option
-        value="{{ val }}"
-        {%
-        if
-        defect.Severity=""
-        ="val"
-        %}selected{%
-        endif
-        %}
-      >
-        {{ label }}
-      </option>
-      {% endfor %}
-    </select>
-  </div>
-  <div>
-    <label for="priority">Priority</label>
-    <select name="priority" id="priority">
-      {% for val,label in priority_choices %}
-      <option
-        value="{{ val }}"
-        {%
-        if
-        defect.Priority=""
-        ="val"
-        %}selected{%
-        endif
-        %}
-      >
-        {{ label }}
-      </option>
-      {% endfor %}
-    </select>
-  </div>
-
-  <div style="margin-top: 1em">
-    <button type="submit" name="accept">Accept & Open</button>
-    <button type="submit" name="reject">Reject</button>
-    <div style="display: inline-block; margin-left: 1em">
-      <button type="submit" name="duplicate">Mark as Duplicate</button>
-      <input type="text" name="duplicate_id" placeholder="Original Report ID" />
+{% block content %}
+<div class="container" style="max-width: 900px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif;">
+    
+    <div style="border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px;">
+        <h2 style="margin: 0;">Defect Report #{{ defect.id }}</h2>
+        <span style="background: #e9ecef; padding: 3px 10px; border-radius: 15px; font-size: 0.9em; font-weight: bold; color: #495057;">
+            STATUS: {{ defect.Status|upper }}
+        </span>
     </div>
-  </div>
 
-  <div style="margin-top: 1em">
-    <label for="comment_text">Add comment</label><br />
-    <textarea
-      name="comment_text"
-      id="comment_text"
-      rows="4"
-      cols="60"
-    ></textarea
-    ><br />
-    <button type="submit" name="add_comment">Add Comment</button>
-  </div>
-</form>
+    <div class="report-card" style="background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin-bottom: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+        <h3 style="margin-top: 0; color: #333;">{{ defect.ReportTitle }}</h3>
+        <hr style="border: 0; border-top: 1px solid #eee;">
+        
+        <p><strong>Description:</strong><br>{{ defect.Description|linebreaksbr }}</p>
+        
+        {% if defect.Steps %}
+        <p><strong>Steps to Reproduce:</strong><br>{{ defect.Steps|linebreaksbr }}</p>
+        {% endif %}
 
-<hr />
-<h3 id="comments">Comments</h3>
-<div>
-  {% if comments %}
-  <ul>
-    {% for c in comments %}
-    <li>
-      <strong>{{ c.author.username }}</strong> — {{ c.created_at }}<br />{{
-      c.text|linebreaks }}
-    </li>
-    {% endfor %}
-  </ul>
-  {% else %}
-  <p>No comments yet.</p>
-  {% endif %}
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.9em; color: #666;">
+            <span><strong>Tester ID:</strong> {{ defect.TesterID }}</span>
+            <span><strong>Created:</strong> {{ defect.CreatedTime|date:"M d, Y H:i" }}</span>
+
+            {% if defect.Email %}
+            <span style="grid-column: span 2;"><strong>Contact Email:</strong> <a href="mailto:{{ defect.Email }}" style="color: #007bff; text-decoration: none;">{{ defect.Email }}</a></span>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if errors %}
+    <div style="background: #f8d7da; color: #721c24; padding: 15px; border-radius: 5px; border: 1px solid #f5c6cb; margin-bottom: 20px;">
+        <strong>Validation Error:</strong>
+        <ul style="margin: 5px 0 0 0;">
+            {% for field, error_list in errors.items %}
+                <li>{{ field }}: {{ error_list|join:", " }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <form method="post" style="background: #fdfdfd; border: 1px solid #eee; padding: 25px; border-radius: 8px;">
+        {% csrf_token %}
+        
+        <div style="display: flex; gap: 30px; margin-bottom: 20px;">
+            <div style="flex: 1;">
+                <label for="severity" style="font-weight: bold; display: block; margin-bottom: 5px;">Update Severity</label>
+                <select name="Severity" id="severity" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
+                    {% for val, label in severity_choices %}
+                    <option value="{{ val }}" {% if form_data.Severity == val or defect.Severity == val %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div style="flex: 1;">
+                <label for="priority" style="font-weight: bold; display: block; margin-bottom: 5px;">Update Priority</label>
+                <select name="Priority" id="priority" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
+                    {% for val, label in priority_choices %}
+                    <option value="{{ val }}" {% if form_data.Priority == val or defect.Priority == val %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div style="margin-bottom: 20px; padding: 15px; background: #f1f3f5; border-radius: 6px;">
+            <p style="margin-top: 0; font-weight: bold;">Triage Action:</p>
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <button type="submit" name="action" value="accept" style="background: #28a745; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer;">
+                    Accept & Open
+                </button>
+                <button type="submit" name="action" value="reject" style="background: #dc3545; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer;">
+                    Reject
+                </button>
+                <div style="border-left: 1px solid #ccc; padding-left: 10px; display: flex; align-items: center; gap: 5px;">
+                    <button type="submit" name="action" value="duplicate" style="background: #ffc107; color: black; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer;">
+                        Mark Duplicate
+                    </button>
+                    <input type="number" name="duplicate_id" value="{{ form_data.duplicate_id }}" placeholder="Original ID" style="padding: 9px; width: 100px; border: 1px solid #ccc; border-radius: 4px;">
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <label for="comment_text" style="font-weight: bold; display: block; margin-bottom: 5px;">Add Evaluation Comment (Required)</label>
+            <textarea name="comment_text" id="comment_text" rows="4" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">{{ form_data.comment_text }}</textarea>
+        </div>
+    </form>
+
+    <hr style="margin: 40px 0;">
+
+    <h3 id="comments">Comment History</h3>
+    {% if comments %}
+        {% for c in comments %}
+        <div style="background: white; border: 1px solid #eee; padding: 15px; border-radius: 6px; margin-bottom: 10px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <strong style="color: #007bff;">{{ c.author.username }}</strong>
+                <small style="color: #999;">{{ c.created_at|date:"M d, Y, H:i" }}</small>
+            </div>
+            <p style="margin: 0; color: #444;">{{ c.text|linebreaksbr }}</p>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p style="color: #999; font-style: italic;">No comments yet.</p>
+    {% endif %}
+
+    <p style="margin-top: 20px;">
+        <a href="{% url 'defectreport-list' %}" style="color: #007bff; text-decoration: none;">← Back to All Reports</a>
+    </p>
+
+    <div style="margin-top: 50px; padding: 10px; background: #333; color: #0f0; font-family: monospace; font-size: 11px; border-radius: 5px;">
+        DEBUG: 
+        {% if defect %} Defect Object found (ID: {{ defect.id }}) {% else %} DEFECT OBJECT IS MISSING! {% endif %}
+    </div>
+
 </div>
-
 {% endblock %}

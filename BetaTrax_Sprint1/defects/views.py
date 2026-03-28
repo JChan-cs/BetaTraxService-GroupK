@@ -54,34 +54,53 @@ class DefectReportViewSet(viewsets.ModelViewSet):
           renderer_classes=[JSONRenderer, TemplateHTMLRenderer],
           permission_classes=[IsAuthenticatedOrReadOnly])
   def evaluate(self, request, pk=None):
-      defect = self.get_object()
+    defect = self.get_object()
 
-      if request.method == 'POST':
-          serializer = DefectEvaluationSerializer(defect, data=request.data, context={'request': request})
-          if serializer.is_valid():
-              serializer.save()
-              
-              # Determine the specific message based on the action sent
-              action_taken = request.data.get('action')
-              msg_map = {
-                  'accept': f"Report {defect.id} successfully opened.",
-                  'reject': f"Report {defect.id} rejected.",
-                  'duplicate': f"Report {defect.id} marked as duplicate."
-              }
-              messages.success(request, msg_map.get(action_taken, "Update successful."))
-              
-              # Redirect to the new success page action
-              return redirect('defect-evaluation-success', pk=defect.pk)
+    if request.method == 'POST':
+        # 1. Manually extract which button was clicked
+        mutable_data = request.data.copy()
+        if 'accept' in request.data:
+            mutable_data['action'] = 'accept'
+        elif 'reject' in request.data:
+            mutable_data['action'] = 'reject'
+        elif 'duplicate' in request.data:
+            mutable_data['action'] = 'duplicate'
+
+        # 2. Pass the modified data to the serializer
+        serializer = DefectEvaluationSerializer(defect, data=mutable_data, context={'request': request})
+        
+        if serializer.is_valid():
+            serializer.save()
+            
+            # Use the new 'action' to set the message
+            action_taken = mutable_data.get('action')
+            msg_map = {
+                'accept': f"Report #{defect.id} successfully opened.",
+                'reject': f"Report #{defect.id} rejected.",
+                'duplicate': f"Report #{defect.id} marked as duplicate."
+            }
+            messages.success(request, msg_map.get(action_taken, "Update successful."))
+            
+            # Correct redirect name (using the basename from your error log)
+            return redirect('defectreport-evaluate-success', pk=defect.pk)
           
           # If invalid, stay on page to show errors
-          return Response({'defect': defect, 'errors': serializer.errors}, template_name='defect_evaluation.html')
+        comments = Comment.objects.all().order_by('-created_at')[:50]
+        return Response({
+            'defect': defect,           
+            'comments': comments,       
+            'errors': serializer.errors,
+            'form_data': mutable_data,
+            'severity_choices': DefectReport.SeverityC,
+            'priority_choices': DefectReport.PriorityC
+        }, template_name='defect_evaluation.html')
 
-      # GET logic...
-      comments = Comment.objects.all().order_by('-created_at')[:50]
-      return Response({'defect': defect, 'comments': comments, 'severity_choices': DefectReport.SeverityC, 'priority_choices': DefectReport.PriorityC}, template_name='defect_evaluation.html')
+    # GET logic...
+    comments = Comment.objects.all().order_by('-created_at')[:50]
+    return Response({'defect': defect, 'comments': comments, 'severity_choices': DefectReport.SeverityC, 'priority_choices': DefectReport.PriorityC}, template_name='defect_evaluation.html')
 
-  @action(detail=True, methods=["get"], url_path="evaluation/success", renderer_classes=[TemplateHTMLRenderer])
-  def evaluation_success(self, request, pk=None):
+  @action(detail=True, methods=["get"], url_path="evaluate/success", renderer_classes=[TemplateHTMLRenderer])
+  def evaluate_success(self, request, pk=None):
       """Dedicated page to show the success state after triage."""
       defect = self.get_object()
       return Response({'defect': defect}, template_name='evaluation_success.html')
