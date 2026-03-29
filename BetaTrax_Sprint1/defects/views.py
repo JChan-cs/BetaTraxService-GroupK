@@ -37,7 +37,6 @@ class DefectReportViewSet(viewsets.ModelViewSet):
         methods=["patch"],
         url_path="status",
         permission_classes=[IsAuthenticated],
-        renderer_classes=[TemplateHTMLRenderer, JSONRenderer]
     )
     def change_status(self, request, pk=None):
         defect = self.get_object()
@@ -160,17 +159,13 @@ class DefectReportViewSet(viewsets.ModelViewSet):
             comments = Comment.objects.all().order_by('-created_at')[:50]
             context = {'defect': defect, 'comments': comments, 'errors': serializer.errors, 'severity_choices': DefectReport.SeverityC, 'priority_choices': DefectReport.PriorityC}
             return render(request, 'defect_evaluation.html', context)
-        
-    @action(detail=True, methods=["get"], url_path="evaluate-success", renderer_classes=[TemplateHTMLRenderer])
-    def evaluate_success(self, request, pk=None):
-        defect = self.get_object()
-        return render(request, 'evaluation_success.html', context)
+
         # GET logic
         comments = Comment.objects.all().order_by('-created_at')[:50]
         context = {'defect': defect, 'comments': comments, 'severity_choices': DefectReport.SeverityC, 'priority_choices': DefectReport.PriorityC}
-        return render(request, 'defect_evaluation.html', {'defect': defect})
+        return render(request, 'defect_evaluation.html', context)
 
-    @action(detail=False, methods=['get'], url_path='open', renderer_classes=[TemplateHTMLRenderer, JSONRenderer])
+    @action(detail=False, methods=['get'], url_path='open')
     def open_defects(self, request):
         defects = DefectReport.objects.filter(Status='Open')
         if request.accepted_renderer.format == 'json':
@@ -178,7 +173,7 @@ class DefectReportViewSet(viewsets.ModelViewSet):
             return Response(serializer.data) # Returns clean JSON
         return render(request, 'open_defects.html', {'defects': defects})
 
-    @action(detail=True, methods=['post'], url_path='take', permission_classes=[IsAuthenticated], renderer_classes=[TemplateHTMLRenderer, JSONRenderer])
+    @action(detail=True, methods=['post'], url_path='take', permission_classes=[IsAuthenticated])
     def take(self, request, pk=None):
         defect = self.get_object()
         # 1. CHECK FOR ERRORS FIRST
