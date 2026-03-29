@@ -35,7 +35,6 @@ class DefectReportViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get', 'post'], url_path='submit', permission_classes=[IsAuthenticated])
     def submit_defect(self, request):
         if request.method == 'POST':
-            # 1. Ensure only Testers can submit
             if not request.user.groups.filter(name='BetaTester').exists():
                 error_msg = "Only Testers can submit new defect reports."
                 if request.accepted_renderer.format == 'json':
@@ -43,7 +42,6 @@ class DefectReportViewSet(viewsets.ModelViewSet):
                 messages.error(request, error_msg)
                 return redirect('defectreport-list')
 
-            # 2. Process the data
             data = request.data.copy()
             data['TesterID'] = request.user.username
             data['Status'] = 'New'  # Force status to New
@@ -57,8 +55,6 @@ class DefectReportViewSet(viewsets.ModelViewSet):
                 
                 messages.success(request, "Defect report submitted successfully!")
                 return redirect('defectreport-list')
-            
-            # Handle Validation Errors
             if request.accepted_renderer.format == 'json':
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             
@@ -67,8 +63,6 @@ class DefectReportViewSet(viewsets.ModelViewSet):
                 'severity_choices': DefectReport.SeverityC,
                 'priority_choices': DefectReport.PriorityC
             })
-
-        # GET logic: Show the blank form
         return render(request, 'defects/submit_defect.html', {
             'severity_choices': DefectReport.SeverityC,
             'priority_choices': DefectReport.PriorityC
@@ -177,19 +171,15 @@ class DefectReportViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["get", "post"], url_path="evaluate", permission_classes=[IsAuthenticatedOrReadOnly])
     def evaluate(self, request, pk=None):
         defect = self.get_object()
-        # Initialize serializer as None so it's available in the context even on GET
         serializer = None
 
         if request.method == 'POST':
-            # 1. Product Owner Group Check
             if not request.user.groups.filter(name='ProductOwner').exists():
                 error_msg = "Only Product Owners can evaluate reports."
                 if request.accepted_renderer.format == 'json':
                     return Response({"detail": error_msg}, status=status.HTTP_403_FORBIDDEN)
                 messages.error(request, error_msg)
                 return redirect('defectreport-detail', pk=defect.pk)
-
-            # 2. Normalize data for the Serializer
             mutable_data = request.data.copy()
             if 'accept' in request.data: mutable_data['action'] = 'accept'
             elif 'reject' in request.data: mutable_data['action'] = 'reject'
@@ -209,16 +199,12 @@ class DefectReportViewSet(viewsets.ModelViewSet):
                 messages.success(request, f"Report #{defect.id} updated.")
                 return redirect('defectreport-evaluate-success', pk=defect.pk)
 
-            # 3. Handle specific JSON error response
             if request.accepted_renderer.format == 'json':
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-            
-            # If we are here, it's an invalid POST in the browser. 
-            # We don't redirect; we fall through to render the form again with errors.
+
             messages.error(request, "Please fix the errors below.")
 
-        # --- GET LOGIC & POST ERROR FALLBACK ---
-        # Filter comments to only show those belonging to THIS defect
+    
         comments = Comment.objects.filter(defect=defect).order_by('-created_at')[:50]
         
         context = {
@@ -247,7 +233,6 @@ class DefectReportViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'], url_path='take', permission_classes=[IsAuthenticated], renderer_classes=[TemplateHTMLRenderer, JSONRenderer, BrowsableAPIRenderer])
     def take(self, request, pk=None):
         defect = self.get_object()
-        # 1. CHECK FOR ERRORS FIRST
         is_not_open = defect.Status != 'Open'
         is_not_developer = not request.user.groups.filter(name='Developer').exists()
 
@@ -255,16 +240,13 @@ class DefectReportViewSet(viewsets.ModelViewSet):
             error_msg = 'Cannot take this defect.'
             if is_not_open: error_msg += " Status is not Open."
             if is_not_developer: error_msg += " You are not in the Developer group."
-
-            # 2. IF IT'S HTTPIE, SEND JSON ERROR INSTEAD OF REDIRECT
             if request.accepted_renderer.format == 'json':
                 return Response({'error': error_msg}, status=status.HTTP_400_BAD_REQUEST)
             
-            # For the browser, keep the redirect
+
             messages.error(request, error_msg)
             return redirect('defectreport-open-defects')
 
-        # 3. SUCCESS LOGIC
         defect.assigned_to = request.user
         defect.Status = 'Assigned'
         defect.save()
@@ -288,4 +270,15 @@ class DefectReportViewSet(viewsets.ModelViewSet):
         """API endpoint for Developer: list defects assigned to current user with Status='Assigned'."""
         defects = self.get_queryset().filter(assigned_to=request.user, Status='Assigned')
         serializer = self.get_serializer(defects, many=True)
+        return Response(serializer.data)
+    @action(detail=False, methods=['get'], url_path='my-tasks', permission_classes=[IsAuthenticated])
+    def my_tasks(self, request):
+        if not request.user.groups.filter(name='Developer').exists():
+            return Response(
+                {'error': 'Only developers can access this endpoint'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        tasks = DefectReport.objects.filter(assigned_to=request.user, Status='Assigned')
+        serializer = self.get_serializer(tasks, many=True)
         return Response(serializer.data)
