@@ -236,7 +236,7 @@ class DefectReportViewSet(viewsets.ModelViewSet):
         context = {'defect': defect}
         return render(request, 'defects/evaluation_success.html', context)
 
-    @action(detail=False, methods=['get'], url_path='open', renderer_classes=[TemplateHTMLRenderer, JSONRenderer])
+    @action(detail=False, methods=['get'], url_path='open', renderer_classes=[TemplateHTMLRenderer, JSONRenderer, BrowsableAPIRenderer])
     def open_defects(self, request):
         defects = DefectReport.objects.filter(Status='Open')
         if request.accepted_renderer.format == 'json':
@@ -244,7 +244,7 @@ class DefectReportViewSet(viewsets.ModelViewSet):
             return Response(serializer.data) # Returns clean JSON
         return render(request, 'defects/open_defects.html', {'defects': defects})
 
-    @action(detail=True, methods=['post'], url_path='take', permission_classes=[IsAuthenticated], renderer_classes=[TemplateHTMLRenderer, JSONRenderer])
+    @action(detail=True, methods=['post'], url_path='take', permission_classes=[IsAuthenticated], renderer_classes=[TemplateHTMLRenderer, JSONRenderer, BrowsableAPIRenderer])
     def take(self, request, pk=None):
         defect = self.get_object()
         # 1. CHECK FOR ERRORS FIRST
