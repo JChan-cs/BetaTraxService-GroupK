@@ -26,8 +26,10 @@ class DefectReportViewSet(viewsets.ModelViewSet):
         return queryset
 
     def create(self, request, *args, **kwargs):
-        request.data["Status"] = "New"
-        serializers =  self.get_serializer(data = request.data)
+        data = request.data.copy()
+        
+        data["Status"] = "New"
+        serializers =  self.get_serializer(data = data)
         serializers.is_valid(raise_exception = True)
         self.perform_create(serializers)
         return Response(serializers.data, status = status.HTTP_201_CREATED)
@@ -135,9 +137,15 @@ class DefectReportViewSet(viewsets.ModelViewSet):
       
         return Response({'username': user.username if user.is_authenticated else 'Not logged in','role': role,'links': links,})
   
-    @action(detail=True, methods=['patch'], url_path='accept')
+    @action(detail=True, methods=['patch'], url_path='accept', permission_classes=[IsAuthenticated])
     def accept(self, request, pk=None):
         defect = self.get_object()
+        
+        if not request.user.groups.filter(name='ProductOwner').exists():
+            return Response(
+                {"detail": "Only Product Owners can accept reports."},
+                status=status.HTTP_403_FORBIDDEN
+            )
         
         if defect.Status != 'New':
             return Response(
