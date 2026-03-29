@@ -11,14 +11,14 @@ from defects.serializers import DefectReportStatusSerializer
 
 @login_required
 def assigned_defects_list(request):
-    defects = DefectReport.objects.filter(assigned_to=request.user, status="ASSIGNED")
+    defects = DefectReport.objects.filter(assigned_to=request.user, Status="ASSIGNED")
     return render(request, "assigned/assigned_defects.html", {"defects": defects})
 
 
 @login_required
 def new_defects_list(request):
     """Show all defect reports with status 'NEW' for evaluation."""
-    defects = DefectReport.objects.filter(status="NEW")
+    defects = DefectReport.objects.filter(Status="NEW")
     return render(request, "assigned/new_defects.html", {"defects": defects})
 
 
@@ -32,7 +32,7 @@ def change_defect_status(request, pk):
     if serializer.is_valid():
         serializer.save()
         return Response({
-            "message": f"Defect status updated to {defect.status}.", 
+            "message": f"Defect status updated to {defect.Status}.", 
             "data": serializer.data
         }, status=status.HTTP_200_OK)
 
