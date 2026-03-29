@@ -25,7 +25,7 @@
                 <td>{{ defect.CreatedTime|date:"Y-m-d H:i" }}</td>
                 <td>{{ defect.Status }}</td>
                 <td>
-                    <a href="{% url 'defectreport-detail' defect.id %}">Evaluate</a>
+                    <a href="{% url 'defectreport-evaluate' defect.id %}">Evaluate</a>
                 </td>
             </tr>
             {% empty %}
