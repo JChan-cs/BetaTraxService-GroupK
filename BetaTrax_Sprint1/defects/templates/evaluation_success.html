@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Evaluation Successful</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #f4f7f6; }
+        .success-card { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; max-width: 400px; width: 100%; }
+        .icon { font-size: 50px; color: #28a745; margin-bottom: 20px; }
+        h2 { margin: 10px 0; color: #333; }
+        .details { margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 8px; text-align: left; }
+        .status-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; background: #e2f3f5; color: #007bff; font-weight: bold; }
+        .btn-home { display: block; margin-top: 30px; padding: 12px; background: #007bff; color: white; text-decoration: none; border-radius: 6px; transition: background 0.2s; }
+        .btn-home:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+
+    <div class="success-card">
+        <div class="icon">✓</div>
+        
+        {% if messages %}
+            {% for message in messages %}
+                <h2>Done!</h2>
+                <p>{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+
+        <div class="details">
+            <p><strong>Report ID:</strong> #{{ defect.id }}</p>
+            <p><strong>New Status:</strong> <span class="status-badge">{{ defect.Status }}</span></p>
+            <p><strong>Title:</strong> {{ defect.ReportTitle }}</p>
+        </div>
+
+        <a href="{% url 'defectreport-list' %}" class="btn-home">Return to All Reports</a>
+    </div>
+
+</body>
+</html>

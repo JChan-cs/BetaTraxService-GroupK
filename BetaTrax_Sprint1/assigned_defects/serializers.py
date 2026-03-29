@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import DefectReport
+from defects.models import DefectReport
 
 class DefectReportStatusSerializer(serializers.ModelSerializer):
     class Meta:

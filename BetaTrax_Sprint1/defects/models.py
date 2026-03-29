@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 
 class DefectReport(models.Model):
@@ -37,6 +38,7 @@ class DefectReport(models.Model):
     Priority = models.CharField(max_length=20, choices=PriorityC)
     CreatedTime = models.DateTimeField(auto_now_add=True)
     UpdatedTime = models.DateTimeField(auto_now=True)
+    assigned_to = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='assigned_defects')
 
     def __str__(self):
         return f"{self.ReportTitle} - {self.Status}"
