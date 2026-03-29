@@ -164,6 +164,8 @@ class DefectReportViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["get", "post"], url_path="evaluate", permission_classes=[IsAuthenticatedOrReadOnly])
     def evaluate(self, request, pk=None):
         defect = self.get_object()
+        # Initialize serializer as None so it's available in the context even on GET
+        serializer = None
 
         if request.method == 'POST':
             # 1. Product Owner Group Check
@@ -185,7 +187,6 @@ class DefectReportViewSet(viewsets.ModelViewSet):
             if serializer.is_valid():
                 serializer.save()
                 
-                # 3. Hybrid Response (JSON for HTTPie, Redirect for Browser)
                 if request.accepted_renderer.format == 'json':
                     return Response({
                         "message": f"Report #{defect.id} successfully updated.",
@@ -195,22 +196,32 @@ class DefectReportViewSet(viewsets.ModelViewSet):
                 messages.success(request, f"Report #{defect.id} updated.")
                 return redirect('defectreport-evaluate-success', pk=defect.pk)
 
-            # If invalid, handle errors for JSON vs HTML
+            # 3. Handle specific JSON error response
             if request.accepted_renderer.format == 'json':
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+            # If we are here, it's an invalid POST in the browser. 
+            # We don't redirect; we fall through to render the form again with errors.
+            messages.error(request, "Please fix the errors below.")
 
-            comments = Comment.objects.all().order_by('-created_at')[:50]
-            context = {'defect': defect, 'comments': comments, 'errors': serializer.errors, 'severity_choices': DefectReport.SeverityC, 'priority_choices': DefectReport.PriorityC}
-            return render(request, 'defect_evaluation.html', context)
+        # --- GET LOGIC & POST ERROR FALLBACK ---
+        # Filter comments to only show those belonging to THIS defect
+        comments = Comment.objects.filter(defect=defect).order_by('-created_at')[:50]
         
+        context = {
+            'defect': defect, 
+            'comments': comments, 
+            'severity_choices': DefectReport.SeverityC, 
+            'priority_choices': DefectReport.PriorityC,
+            'errors': serializer.errors if serializer else None  # Pass errors to the UI
+        }
+        return render(request, 'defects/defect_evaluation.html', context)
+    
     @action(detail=True, methods=["get"], url_path="evaluate-success", renderer_classes=[TemplateHTMLRenderer])
     def evaluate_success(self, request, pk=None):
         defect = self.get_object()
-        return render(request, 'evaluation_success.html', context)
-        # GET logic
-        comments = Comment.objects.all().order_by('-created_at')[:50]
-        context = {'defect': defect, 'comments': comments, 'severity_choices': DefectReport.SeverityC, 'priority_choices': DefectReport.PriorityC}
-        return render(request, 'defect_evaluation.html', {'defect': defect})
+        context = {'defect': defect}
+        return render(request, 'defects/evaluation_success.html', context)
 
     @action(detail=False, methods=['get'], url_path='open', renderer_classes=[TemplateHTMLRenderer, JSONRenderer])
     def open_defects(self, request):
@@ -218,7 +229,7 @@ class DefectReportViewSet(viewsets.ModelViewSet):
         if request.accepted_renderer.format == 'json':
             serializer = self.get_serializer(defects, many=True)
             return Response(serializer.data) # Returns clean JSON
-        return render(request, 'open_defects.html', {'defects': defects})
+        return render(request, 'defects/open_defects.html', {'defects': defects})
 
     @action(detail=True, methods=['post'], url_path='take', permission_classes=[IsAuthenticated], renderer_classes=[TemplateHTMLRenderer, JSONRenderer])
     def take(self, request, pk=None):

@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 class Comment(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     text = models.TextField()
+    defect = models.ForeignKey('defects.DefectReport', on_delete=models.CASCADE, related_name='comments', null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
