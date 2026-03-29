@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h2>Taken Success!</h2>
+  <p>Defect #{{ defect.id }} has been assigned to you.</p>
+  <p>Please check it in 'My Tasks'.</p>
+  <p>
+    <a href="/">Return to Home</a>
+    <a href="{% url 'open_defects' %}" style="margin-left:1em;">View Another</a>
+  </p>
+{% endblock %}

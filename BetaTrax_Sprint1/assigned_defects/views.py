@@ -5,8 +5,8 @@ from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
-from .models import DefectReport
-from .serializers import DefectReportStatusSerializer
+from defects.models import DefectReport
+from defects.serializers import DefectReportStatusSerializer
 
 
 @login_required

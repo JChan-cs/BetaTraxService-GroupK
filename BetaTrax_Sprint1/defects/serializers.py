@@ -6,10 +6,11 @@ class DefectReportSerializer(serializers.ModelSerializer):
     class Meta:
         model = DefectReport
         fields = "__all__"
-        read_only_fields = ["Status", "CreatedTime", "UpdatedTime"]
+        read_only_fields = ["Status", "CreatedTime", "UpdatedTime", "assigned_to"]
         extra_kwargs = {
             "Severity": {"required": False},
             "Priority": {"required": False},
+            "assigned_to": {"required": False},
         }
 
 
