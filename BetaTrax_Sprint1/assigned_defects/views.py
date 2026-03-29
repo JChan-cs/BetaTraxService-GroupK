@@ -35,7 +35,7 @@ def change_defect_status(request, pk):
     if serializer.is_valid():
         serializer.save()
         return Response({
-            "message": f"Defect status updated to {defect.status}.", 
+            "message": f"Defect status updated to {defect.Status}.", 
             "data": serializer.data
         }, status=status.HTTP_200_OK)
 

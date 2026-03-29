@@ -35,7 +35,7 @@ class DefectReportStatusSerializer(serializers.ModelSerializer):
 
         group_names = set(request.user.groups.values_list("name", flat=True))
 
-        is_beta_tester = "Tester" in group_names
+        is_beta_tester = "BetaTester" in group_names
         is_developer = "Developer" in group_names
 
         transitions = {
@@ -52,6 +52,11 @@ class DefectReportStatusSerializer(serializers.ModelSerializer):
         if not rule["role"]:
             raise serializers.ValidationError(
                 f"Only usergroup {rule['name']} can change status from '{current_status}' to '{target_status}'."
+            )
+        
+        if transition == ("Assigned", "Fixed") and instance.assigned_to != request.user:
+            raise serializers.ValidationError(
+                "Only the assigned developer can mark this report as Fixed."
             )
         return value
 
