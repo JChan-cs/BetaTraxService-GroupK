@@ -83,6 +83,19 @@ class DefectReportViewSet(viewsets.ModelViewSet):
     )
     def change_status(self, request, pk=None):
         defect = self.get_object()
+        
+        if "Status" not in request.data:
+            return Response(
+                {"Status": "This field is required."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        if request.data.get("Status") == defect.Status:
+            return Response(
+                {"Status": f"Defect is already '{defect.Status}'."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
         serializer = DefectReportStatusSerializer(
             defect,
             data=request.data,
@@ -98,7 +111,7 @@ class DefectReportViewSet(viewsets.ModelViewSet):
             },
             status=status.HTTP_200_OK,
         )
-  
+
     @action(detail=False, methods=['get'], url_path='dashboard')
     def dashboard(self, request):
         user = request.user
