@@ -48,7 +48,7 @@
         {% for item in retest %}
           <tr>
             <td>#{{ item.report_id }}</td>
-            <td>{{ item.date|date:"d/m/Y" }}</td>
+            <td>{{ item.date|date:"d/m/Y H:i" }}</td>
             <td>{{ item.retest_result }}</td>
             <td>
               <a href="{% url 'update-retest-status' item.id %}" class="btn-update">Update</a>

@@ -7,5 +7,5 @@ urlpatterns = [
     path('assigned/', views.assigned_defects_list, name='assigned_defects'),
     path('new/', views.new_defects_list, name='new_defects'),
     path('<int:pk>/status/', views.change_defect_status, name='change_defect_status'),
-    path('api/', include("betatrax.urls")),
+    path('api/', include("assigned_defects.urls")),
 ]
