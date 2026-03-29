@@ -20,12 +20,12 @@
             {% for defect in defects %}
             <tr>
                 <td>{{ defect.id }}</td>
-                <td>{{ defect.title }}</td>
-                <td>{{ defect.tester_id }}</td>
-                <td>{{ defect.submitted_at }}</td>
-                <td>{{ defect.status }}</td>
+                <td>{{ defect.ReportTitle }}</td>
+                <td>{{ defect.TesterID }}</td>
+                <td>{{ defect.CreatedTime|date:"Y-m-d H:i" }}</td>
+                <td>{{ defect.Status }}</td>
                 <td>
-                    <a href="#">Evaluate</a> 
+                    <a href="{% url 'defectreport-detail' defect.id %}">Evaluate</a>
                 </td>
             </tr>
             {% empty %}

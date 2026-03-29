@@ -19,11 +19,11 @@
             {% for defect in defects %}
             <tr>
                 <td>{{ defect.id }}</td>
-                <td>{{ defect.title }}</td>
-                <td>{{ defect.priority|default:"—" }}</td>
-                <td>{{ defect.status }}</td>
+                <td>{{ defect.ReportTitle }}</td>          <!-- was title -->
+                <td>{{ defect.Priority|default:"—" }}</td> <!-- was priority -->
+                <td>{{ defect.Status }}</td>               <!-- was status -->
                 <td>
-                    <a href="#">View/Update</a> 
+                    <a href="{% url 'defectreport-detail' defect.id %}">View/Update</a>
                 </td>
             </tr>
             {% empty %}
@@ -31,6 +31,6 @@
             {% endfor %}
         </tbody>
     </table>
-    <p><a href="{% url 'open_defects' %}">Back to Open Defects</a></p>
+    <p><a href="{% url 'defectreport-open-defects' %}">Back to Open Defects</a></p>
 </body>
 </html>
