@@ -8,7 +8,7 @@ from .serializers import DefectReportSerializer, DefectReportStatusSerializer, D
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required 
-from rest_framework.renderers import TemplateHTMLRenderer, JSONRenderer
+from rest_framework.renderers import BrowsableAPIRenderer, TemplateHTMLRenderer, JSONRenderer
 
 
 
@@ -79,7 +79,7 @@ class DefectReportViewSet(viewsets.ModelViewSet):
         methods=["patch"],
         url_path="status",
         permission_classes=[IsAuthenticated],
-        renderer_classes=[TemplateHTMLRenderer, JSONRenderer]
+        renderer_classes=[TemplateHTMLRenderer, JSONRenderer, BrowsableAPIRenderer],
     )
     def change_status(self, request, pk=None):
         defect = self.get_object()
@@ -100,7 +100,7 @@ class DefectReportViewSet(viewsets.ModelViewSet):
             defect,
             data=request.data,
             context={"request": request},
-            partial=True,
+            partial=False,
         )
         serializer.is_valid(raise_exception=True)
         serializer.save()
