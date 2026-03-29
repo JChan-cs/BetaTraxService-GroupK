@@ -1,0 +1,11 @@
+<form method="POST">
+    {% csrf_token %}
+    <p>Product ID: <input type="text" name="ProductID" required></p>
+    <p>Version: <input type="text" name="Version" required></p>
+    <p>Title: <input type="text" name="ReportTitle" required></p>
+    <p>Description: <textarea name="Description"></textarea></p>
+    <p>Steps: <textarea name="Steps"></textarea></p>
+    <p>Your Email: <input type="email" name="Email"></p>
+    
+    <button type="submit">Upload Defect</button>
+</form>
