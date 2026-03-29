@@ -210,3 +210,16 @@ class DefectReportViewSet(viewsets.ModelViewSet):
         Comment.objects.create(author=request.user, text=f"Defect #{defect.id} assigned to {request.user.username}.")
         messages.success(request, "Success! Defect assigned.")
         return render(request, 'defects/take_success.html', {'defect': defect})
+    @action(detail=False, methods=['get'], url_path='new', permission_classes=[IsAuthenticated])
+    def new_defects(self, request):
+        """API endpoint for Product Owner: list all defects with Status='New'."""
+        defects = self.get_queryset().filter(Status='New')
+        serializer = self.get_serializer(defects, many=True)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'], url_path='my-assigned', permission_classes=[IsAuthenticated])
+    def my_assigned_defects(self, request):
+        """API endpoint for Developer: list defects assigned to current user with Status='Assigned'."""
+        defects = self.get_queryset().filter(assigned_to=request.user, Status='Assigned')
+        serializer = self.get_serializer(defects, many=True)
+        return Response(serializer.data)
