@@ -7,6 +7,9 @@ from comments.models import Comment
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.contrib.auth.decorators import user_passes_test
 
+from defects.serializers import DefectReportStatusSerializer
+from defects.models import DefectReport
+
 def is_product_owner(user):
     return user.groups.filter(name='ProductOwner').exists()
 
@@ -45,8 +48,14 @@ def update_retest_status(request, pk):
         
         if new_status in ['Resolved', 'Reopened']:
             result.retest_result = new_status
-            result.save()
 
+            # Update the status of the associated DefectReport
+            defect = get_object_or_404(DefectReport, pk=result.report_id)
+            serializer = DefectReportStatusSerializer(instance=defect, data={'Status': new_status}, context={'request': request})
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+
+            result.save()
             Comment.objects.create(
                 author = request.user, 
                 text=f"System Update: Report #{result.report_id} has been marked as {new_status} by {request.user.username}."

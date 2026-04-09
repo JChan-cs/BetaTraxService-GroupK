@@ -75,7 +75,7 @@ class DefectReportViewSet(viewsets.ModelViewSet):
         methods=["patch"],
         url_path="status",
         permission_classes=[IsAuthenticated],
-        renderer_classes=[TemplateHTMLRenderer, JSONRenderer, BrowsableAPIRenderer],
+        renderer_classes=[JSONRenderer, BrowsableAPIRenderer],
     )
     def change_status(self, request, pk=None):
         defect = self.get_object()
@@ -241,12 +241,12 @@ class DefectReportViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'], url_path='take', permission_classes=[IsAuthenticated], renderer_classes=[TemplateHTMLRenderer, JSONRenderer, BrowsableAPIRenderer])
     def take(self, request, pk=None):
         defect = self.get_object()
-        is_not_open = defect.Status != 'Open'
+        is_not_open = defect.Status != 'Open' and defect.Status != 'Reopened'
         is_not_developer = not request.user.groups.filter(name='Developer').exists()
 
         if is_not_open or is_not_developer:
             error_msg = 'Cannot take this defect.'
-            if is_not_open: error_msg += " Status is not Open."
+            if is_not_open: error_msg += " Status is not Open or Reopened."
             if is_not_developer: error_msg += " You are not in the Developer group."
             if request.accepted_renderer.format == 'json':
                 return Response({'error': error_msg}, status=status.HTTP_400_BAD_REQUEST)
