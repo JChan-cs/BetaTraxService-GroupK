@@ -24,4 +24,5 @@ urlpatterns = [
     path('resolved/', include('Resolving.urls')),
     path('assigned/', include('assigned_defects.urls'), name='assigned_defects'),
     path('product_reg/', include('products.urls')), 
+    path('api/', include('products.urls')),
 ]
