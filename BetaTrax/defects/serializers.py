@@ -37,10 +37,11 @@ class DefectReportStatusSerializer(serializers.ModelSerializer):
 
         is_beta_tester = "BetaTester" in group_names
         is_developer = "Developer" in group_names
+        is_product_owner = "ProductOwner" in group_names
 
         transitions = {
             ("Assigned", "Fixed"): {"role": is_developer, "name": "Developer"},
-            ("Fixed", "Resolved"): {"role": is_beta_tester, "name": "BetaTester"},
+            ("Fixed", "Resolved"): {"role": is_product_owner, "name": "ProductOwner"},
         }
 
         rule = transitions.get(transition)
