@@ -23,4 +23,5 @@ urlpatterns = [
     path('comments/', include('comments.urls')),
     path('resolved/', include('Resolving.urls')),
     path('assigned/', include('assigned_defects.urls'), name='assigned_defects'),
+    path('api/', include('products.urls')), 
 ]

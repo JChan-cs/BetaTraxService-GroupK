@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head><title>Product Dashboard</title></head>
+<body>
+    <h1>Your Products</h1>
+    {% if products %}
+        <ul>
+        {% for p in products %}
+            <li>{{ p.name }} (ID: {{ p.product_id }}, version {{ p.version }}) – Status: {{ p.status }}</li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No products yet. Use the API to create one.</p>
+    {% endif %}
+    <p><a href="{% url 'product-list' %}">API endpoint</a> (for programmatic creation)</p>
+</body>
+</html>
