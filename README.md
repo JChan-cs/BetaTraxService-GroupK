@@ -81,7 +81,7 @@ Service Structure:
 
 ```sh
 ├── README.md                     # Readme for the current repository
-├── BetaTrax_Sprint1/             # Contains Sprint 1 main Script
+├── BetaTrax/             # Contains main Script
 ├── requirements.txt              # Contains list of required package and dependencies    
 ```
 
