@@ -1,14 +1,17 @@
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.decorators import action
-from .models import DefectReport
-from comments.models import Comment
-from .serializers import DefectReportSerializer, DefectReportStatusSerializer, DefectEvaluationSerializer
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required 
 from rest_framework.renderers import BrowsableAPIRenderer, TemplateHTMLRenderer, JSONRenderer
+
+from comments.models import Comment
+
+from .models import DefectReport
+from .serializers import DefectReportSerializer, DefectReportStatusSerializer, DefectEvaluationSerializer
 
 
 
@@ -75,7 +78,7 @@ class DefectReportViewSet(viewsets.ModelViewSet):
         methods=["patch"],
         url_path="status",
         permission_classes=[IsAuthenticated],
-        renderer_classes=[TemplateHTMLRenderer, JSONRenderer, BrowsableAPIRenderer],
+        renderer_classes=[JSONRenderer, BrowsableAPIRenderer],
     )
     def change_status(self, request, pk=None):
         defect = self.get_object()
@@ -232,7 +235,8 @@ class DefectReportViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'], url_path='open', renderer_classes=[TemplateHTMLRenderer, JSONRenderer, BrowsableAPIRenderer])
     def open_defects(self, request):
-        defects = DefectReport.objects.filter(Status='Open')
+        # Show both Open and Reopened defects
+        defects = DefectReport.objects.filter(Q(Status='Open') | Q(Status='Reopened')).order_by('CreatedTime')
         if request.accepted_renderer.format == 'json':
             serializer = self.get_serializer(defects, many=True)
             return Response(serializer.data) # Returns clean JSON
@@ -241,12 +245,12 @@ class DefectReportViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'], url_path='take', permission_classes=[IsAuthenticated], renderer_classes=[TemplateHTMLRenderer, JSONRenderer, BrowsableAPIRenderer])
     def take(self, request, pk=None):
         defect = self.get_object()
-        is_not_open = defect.Status != 'Open'
+        is_not_open = defect.Status not in ['Open', 'Reopened']
         is_not_developer = not request.user.groups.filter(name='Developer').exists()
 
         if is_not_open or is_not_developer:
             error_msg = 'Cannot take this defect.'
-            if is_not_open: error_msg += " Status is not Open."
+            if is_not_open: error_msg += " Status is not Open or Reopened."
             if is_not_developer: error_msg += " You are not in the Developer group."
             if request.accepted_renderer.format == 'json':
                 return Response({'error': error_msg}, status=status.HTTP_400_BAD_REQUEST)

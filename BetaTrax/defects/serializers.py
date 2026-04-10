@@ -17,49 +17,56 @@ class DefectReportSerializer(serializers.ModelSerializer):
 class DefectReportStatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = DefectReport
-        fields = ["id", "Status"]
+        fields = ["id", "Status", "assigned_to"]
         read_only_fields = ["id"]
 
-    def validate_Status(self, value):
-        instance = self.instance
-        if instance is None:
+    def validate(self, new_instance):
+        old_instance = self.instance
+        if old_instance is None:
             raise serializers.ValidationError("Instance not found.")
 
         request = self.context.get("request")
         if request is None:
             raise serializers.ValidationError("Request context is required.")
 
-        current_status = instance.Status
-        target_status = value
-        transition = (current_status, target_status)
+        old_status = old_instance.Status
+        new_status = new_instance.get("Status")
+        transition = (old_status, new_status)
 
         group_names = set(request.user.groups.values_list("name", flat=True))
 
-        is_beta_tester = "BetaTester" in group_names
         is_developer = "Developer" in group_names
         is_product_owner = "ProductOwner" in group_names
 
         transitions = {
             ("Assigned", "Fixed"): {"role": is_developer, "name": "Developer"},
             ("Fixed", "Resolved"): {"role": is_product_owner, "name": "ProductOwner"},
+            ("Fixed", "Reopened"): {"role": is_product_owner, "name": "ProductOwner"},
+            ("Reopened", "Assigned"): {"role": is_developer, "name": "Developer"},
         }
 
         rule = transitions.get(transition)
         if rule is None:
             raise serializers.ValidationError(
-                f"Invalid status transition from '{current_status}' to '{target_status}'."
+                f"Invalid status transition from '{old_status}' to '{new_status}'."
             )
 
         if not rule["role"]:
             raise serializers.ValidationError(
-                f"Only usergroup {rule['name']} can change status from '{current_status}' to '{target_status}'."
+                f"Only usergroup {rule['name']} can change status from '{old_status}' to '{new_status}'."
             )
-        
-        if transition == ("Assigned", "Fixed") and instance.assigned_to != request.user:
+
+        if transition == ("Assigned", "Fixed") and old_instance.assigned_to != request.user:
             raise serializers.ValidationError(
                 "Only the assigned developer can mark this report as Fixed."
             )
-        return value
+        if transition == ("Fixed", "Reopened"):
+            # Unassign reopened reports to allow reassignment
+            new_instance["assigned_to"] = None
+        if transition == ("Reopened", "Assigned"):
+            # Reassign to the user performing the action
+            new_instance["assigned_to"] = request.user
+        return new_instance
 
 class DefectEvaluationSerializer(serializers.ModelSerializer):
     # These fields aren't on the model but are needed for the triage process
