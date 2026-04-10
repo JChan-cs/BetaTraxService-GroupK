@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Betatrax - Homepage</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        h1 {
+            color: #0366d6;
+        }
+        h2 {
+            color: #006dba;
+        }
+        p {
+            font-size: 1.2em;
+        }
+        a, a:visited {
+            color: rgb(105, 79, 255);
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome to BetaTrax!</h1>
+    <p>This is the home page.</p>
+
+    <h2>Defects</h2>
+    <ul>
+        <li> <a href="/defects/reports">Defect REST endpoint</a> </li>
+        <li> <a href="/defects/reports/submit">Submit Defects</a> </li>
+        <li> <a href="/defects/reports/dashboard">Get Links</a> </li>
+        <li> <a href="/defects/reports/open">Get open defect list</a> </li>
+        <li> <a href="/defects/reports/new">Get new defects</a> </li>
+    </ul>
+
+    <h2>Comments</h2>
+    <ul>
+        <li> <a href="/comments">Comments</a> </li>
+        <li> <a href="/comments/api/comments">Comment REST endpoint</a> </li>
+    </ul>
+
+    <h2>Resolving</h2>
+    <ul>
+        <li> <a href="/resolved">Resolving</a> </li>
+        <li> <a href="/resolved/api/result">Resolving REST endpoint</a> </li>
+    </ul>
+
+    <h2>Assigned</h2>
+    <ul>
+        <li> <a href="/assigned/assigned">Assigned Defects</a> </li>
+        <li> <a href="/assigned/new">New Defects</a> </li>
+    </ul>
+
+    <h2>Products</h2>
+    <ul>
+        <li> <a href="/product_reg/dashboard">Product Registration Dashboard</a> </li>
+        <li> <a href="/product_reg/products">Products REST endpoint</a> </li>
+    </ul>
+</body>
+</html>
