@@ -236,7 +236,7 @@ class DefectReportViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'], url_path='open', renderer_classes=[TemplateHTMLRenderer, JSONRenderer, BrowsableAPIRenderer])
     def open_defects(self, request):
         # Show both Open and Reopened defects
-        defects = DefectReport.objects.filter(Q(Status='Open') | Q(Status='Reopened')).order_by('-created_at')
+        defects = DefectReport.objects.filter(Q(Status='Open') | Q(Status='Reopened')).order_by('CreatedTime')
         if request.accepted_renderer.format == 'json':
             serializer = self.get_serializer(defects, many=True)
             return Response(serializer.data) # Returns clean JSON
