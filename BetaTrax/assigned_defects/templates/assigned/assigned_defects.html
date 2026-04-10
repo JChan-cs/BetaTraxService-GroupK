@@ -23,7 +23,7 @@
                 <td>{{ defect.Priority|default:"—" }}</td> <!-- was priority -->
                 <td>{{ defect.Status }}</td>               <!-- was status -->
                 <td>
-                    <a href="{% url 'defectreport-detail' defect.id %}">View/Update</a>
+                    <a href="{% url 'defectreport-mark-fixed' defect.id %}">Mark Fixed</a>
                 </td>
             </tr>
             {% empty %}

@@ -37,18 +37,17 @@ class DefectReportViewSet(viewsets.ModelViewSet):
         self.perform_create(serializers)
         return Response(serializers.data, status = status.HTTP_201_CREATED)
 
-    @action(detail=False, methods=['get', 'post'], url_path='submit', permission_classes=[IsAuthenticated])
+    @action(detail=False, methods=['get', 'post'], url_path='submit')
     def submit_defect(self, request):
         if request.method == 'POST':
-            if not request.user.groups.filter(name='BetaTester').exists():
-                error_msg = "Only Testers can submit new defect reports."
-                if request.accepted_renderer.format == 'json':
-                    return Response({"detail": error_msg}, status=status.HTTP_403_FORBIDDEN)
-                messages.error(request, error_msg)
-                return redirect('defectreport-list')
+            # if not request.user.groups.filter(name='BetaTester').exists():
+            #     error_msg = "Only Testers can submit new defect reports."
+            #     if request.accepted_renderer.format == 'json':
+            #         return Response({"detail": error_msg}, status=status.HTTP_403_FORBIDDEN)
+            #     messages.error(request, error_msg)
+            #     return redirect('defectreport-list')
 
             data = request.data.copy()
-            data['TesterID'] = request.user.username
             data['Status'] = 'New'  # Force status to New
             
             serializer = self.get_serializer(data=data)
@@ -294,3 +293,34 @@ class DefectReportViewSet(viewsets.ModelViewSet):
         tasks = DefectReport.objects.filter(assigned_to=request.user, Status='Assigned')
         serializer = self.get_serializer(tasks, many=True)
         return Response(serializer.data)
+    
+    @action(detail=True, methods=["get", "post"], url_path='mark_fixed', permission_classes=[IsAuthenticated])
+    def mark_fixed(self, request, pk=None):
+        defect = self.get_object()
+        
+        if defect.Status != "Assigned" or defect.assigned_to != request.user:
+            return Response(
+                {'error': 'Only assigned developer can access this endpoint'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        if request.method == "POST":
+            serializer = DefectReportStatusSerializer(
+                defect,
+                data={
+                    "Status": "Fixed"
+                },
+                context={"request": request},
+                partial=False,
+            )
+            if not serializer.is_valid():
+                messages.error(request, "Unable to mark this defect as Fixed.")
+                return render(
+                    request,
+                    'defects/mark_fixed.html',
+                    context={"defect": defect, "errors": serializer.errors},
+                    status=400,
+                )
+            serializer.save()
+            return redirect("assigned_defects")
+        return render(request, 'defects/mark_fixed.html', context={"defect": defect})
