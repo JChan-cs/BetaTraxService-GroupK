@@ -1,12 +1,247 @@
-<form method="POST">
-    {% csrf_token %}
-    <p>Product ID*: <input type="text" name="ProductID" required></p>
-    <p>Version*: <input type="text" name="Version" required></p>
-    <p>Title*: <input type="text" name="ReportTitle" required></p>
-    <p>Description: <textarea name="Description"></textarea></p>
-    <p>Steps: <textarea name="Steps"></textarea></p>
-    <p>Your Email: <input type="email" name="Email"></p>
-    <p>Your Tester ID*: <input type="text" name="TesterID" required></p>
-    
-    <button type="submit">Upload Defect</button>
-</form>
+{% extends "base.html" %} {% block content %}
+<div
+  style="
+    max-width: 760px;
+    margin: 24px auto;
+    font-family:
+      system-ui,
+      -apple-system,
+      &quot;Segoe UI&quot;,
+      Roboto,
+      &quot;Helvetica Neue&quot;,
+      Arial;
+  "
+>
+  <div
+    style="
+      background: #fff;
+      border: 1px solid #e6e6e6;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+      padding: 24px;
+    "
+  >
+    <h2 style="margin-top: 0; margin-bottom: 8px; font-size: 1.4rem">
+      Submit a Defect Report
+    </h2>
+    <p style="color: #666; margin-top: 0; margin-bottom: 18px">
+      Please fill the required fields (*) and provide steps to reproduce when
+      possible.
+    </p>
+
+    {% if messages %} {% for message in messages %}
+    <div
+      style="
+        padding: 10px;
+        margin-bottom: 12px;
+        border-radius: 4px;
+        background-color: #f0f9ff;
+        color: #0b6ea6;
+        border: 1px solid #d0e9ff;
+      "
+    >
+      {{ message }}
+    </div>
+    {% endfor %} {% endif %} {% if errors %}
+    <div
+      style="
+        padding: 12px;
+        margin-bottom: 12px;
+        border-radius: 4px;
+        background: #fff4f4;
+        color: #8a1f1f;
+        border: 1px solid #ffd6d6;
+      "
+    >
+      <strong>There were errors with your submission:</strong>
+      <ul style="margin: 8px 0 0 18px">
+        {% for field, msgs in errors.items %}
+        <li><strong>{{ field }}:</strong> {{ msgs }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+    <form method="POST">
+      {% csrf_token %}
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px">
+        <label style="display: block">
+          <div style="font-size: 0.85rem; color: #333">
+            Product ID <span style="color: #d9534f">*</span>
+          </div>
+          <input
+            type="text"
+            name="ProductID"
+            required
+            placeholder="e.g. PROD-001"
+            style="
+              width: 100%;
+              padding: 10px;
+              border-radius: 6px;
+              border: 1px solid #ddd;
+            "
+          />
+        </label>
+
+        <label style="display: block">
+          <div style="font-size: 0.85rem; color: #333">
+            Version <span style="color: #d9534f">*</span>
+          </div>
+          <input
+            type="text"
+            name="Version"
+            required
+            placeholder="e.g. 1.2.3"
+            style="
+              width: 100%;
+              padding: 10px;
+              border-radius: 6px;
+              border: 1px solid #ddd;
+            "
+          />
+        </label>
+      </div>
+
+      <div style="margin-top: 12px">
+        <label style="display: block">
+          <div style="font-size: 0.85rem; color: #333">
+            Title <span style="color: #d9534f">*</span>
+          </div>
+          <input
+            type="text"
+            name="ReportTitle"
+            required
+            placeholder="Short descriptive title"
+            style="
+              width: 100%;
+              padding: 10px;
+              border-radius: 6px;
+              border: 1px solid #ddd;
+            "
+          />
+        </label>
+      </div>
+
+      <div style="margin-top: 12px">
+        <div
+          style="
+            padding: 10px;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            color: #495057;
+          "
+        >
+          <strong>Note:</strong> Severity and Priority will be assigned by a
+          Product Owner during triage. You don't need to select them now.
+        </div>
+      </div>
+
+      <div style="margin-top: 12px">
+        <label style="display: block">
+          <div style="font-size: 0.85rem; color: #333">
+            Description <span style="color: #d9534f">*</span>
+          </div>
+          <textarea
+            name="Description"
+            rows="4"
+            placeholder="Brief summary of the issue"
+            style="
+              width: 100%;
+              padding: 10px;
+              border-radius: 6px;
+              border: 1px solid #ddd;
+            "
+          ></textarea>
+        </label>
+      </div>
+
+      <div style="margin-top: 12px">
+        <label style="display: block">
+          <div style="font-size: 0.85rem; color: #333">
+            Steps to Reproduce <span style="color: #d9534f">*</span>
+          </div>
+          <textarea
+            name="Steps"
+            rows="5"
+            placeholder="Step 1\nStep 2\n..."
+            style="
+              width: 100%;
+              padding: 10px;
+              border-radius: 6px;
+              border: 1px solid #ddd;
+            "
+          ></textarea>
+        </label>
+      </div>
+
+      <div
+        style="
+          margin-top: 12px;
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 12px;
+          align-items: center;
+        "
+      >
+        <label style="display: block">
+          <div style="font-size: 0.85rem; color: #333">Your Email</div>
+          <input
+            type="email"
+            name="Email"
+            placeholder="optional"
+            style="
+              width: 100%;
+              padding: 10px;
+              border-radius: 6px;
+              border: 1px solid #ddd;
+            "
+          />
+        </label>
+
+        <label style="display: block">
+          <div style="font-size: 0.85rem; color: #333">
+            Your Tester ID <span style="color: #d9534f">*</span>
+          </div>
+          <input
+            type="text"
+            name="TesterID"
+            required
+            placeholder="e.g. tester123"
+            style="
+              width: 100%;
+              padding: 10px;
+              border-radius: 6px;
+              border: 1px solid #ddd;
+            "
+          />
+        </label>
+      </div>
+
+      <div
+        style="margin-top: 18px; display: flex; gap: 12px; align-items: center"
+      >
+        <button
+          type="submit"
+          style="
+            background: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+          "
+        >
+          Submit Defect
+        </button>
+        <a
+          href="{% url 'defectreport-dashboard' %}"
+          style="color: #007bff; text-decoration: none"
+          >Cancel</a
+        >
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,153 @@
+{% extends "base.html" %} {% block content %}
+<div
+  style="
+    max-width: 900px;
+    margin: 24px auto;
+    font-family:
+      system-ui,
+      -apple-system,
+      &quot;Segoe UI&quot;,
+      Roboto,
+      Arial;
+  "
+>
+  <div
+    style="
+      background: #fff;
+      border: 1px solid #e6e6e6;
+      border-radius: 8px;
+      padding: 20px;
+    "
+  >
+    <h2 style="margin: 0 0 8px 0">
+      Report #{{ defect.id }} — {{ defect.ReportTitle }}
+    </h2>
+    <p style="color: #666; margin-top: 0; margin-bottom: 12px">
+      Status: <strong>{{ defect.Status }}</strong> &nbsp; • &nbsp; Created: {{
+      defect.CreatedTime|date:"Y-m-d H:i" }}
+    </p>
+
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 14px">
+      <tr>
+        <td
+          style="
+            width: 140px;
+            font-weight: 600;
+            vertical-align: top;
+            padding: 6px 8px;
+          "
+        >
+          Product
+        </td>
+        <td style="padding: 6px 8px">
+          {{ defect.ProductID }} (v{{ defect.Version }})
+        </td>
+      </tr>
+      <tr>
+        <td style="font-weight: 600; vertical-align: top; padding: 6px 8px">
+          Tester
+        </td>
+        <td style="padding: 6px 8px">
+          {{ defect.TesterID }}{% if defect.Email %} — {{ defect.Email }}{% endif %}
+        </td>
+      </tr>
+      <tr>
+        <td style="font-weight: 600; vertical-align: top; padding: 6px 8px">
+          Severity
+        </td>
+        <td style="padding: 6px 8px">{{ defect.Severity|default:'—' }}</td>
+      </tr>
+      <tr>
+        <td style="font-weight: 600; vertical-align: top; padding: 6px 8px">
+          Priority
+        </td>
+        <td style="padding: 6px 8px">{{ defect.Priority|default:'—' }}</td>
+      </tr>
+      <tr>
+        <td style="font-weight: 600; vertical-align: top; padding: 6px 8px">
+          Assigned
+        </td>
+        <td style="padding: 6px 8px">
+          {% if defect.assigned_to %}{{ defect.assigned_to.username }}{% else
+          %}-{% endif %}
+        </td>
+      </tr>
+    </table>
+
+    <div style="margin-bottom: 12px">
+      <h4 style="margin: 0 0 6px 0">Description</h4>
+      <div
+        style="
+          padding: 10px;
+          border: 1px solid #f0f0f0;
+          border-radius: 6px;
+          background: #fafafa;
+          white-space: pre-wrap;
+        "
+      >
+        {{ defect.Description }}
+      </div>
+    </div>
+
+    <div style="margin-bottom: 12px">
+      <h4 style="margin: 0 0 6px 0">Steps to Reproduce</h4>
+      <div
+        style="
+          padding: 10px;
+          border: 1px solid #f0f0f0;
+          border-radius: 6px;
+          background: #fafafa;
+          white-space: pre-wrap;
+        "
+      >
+        {{ defect.Steps }}
+      </div>
+    </div>
+
+    <p style="margin-top: 12px">
+      <a
+        href="{% url 'defectreport-evaluate' defect.id %}"
+        style="text-decoration: none; color: #007bff; margin-right: 12px"
+        >Evaluate</a
+      >
+      <a
+        href="/defects/reports/open/"
+        style="text-decoration: none; color: #ff0000"
+        >Back to Open Defects</a
+      >
+    </p>
+  </div>
+
+  <div style="margin-top: 18px">
+    <h3 style="margin-bottom: 8px">Comments</h3>
+    {% if comments %}
+    <ul style="list-style: none; padding: 0; margin: 0">
+      {% for c in comments %}
+      <li
+        style="
+          padding: 10px;
+          border: 1px solid #eee;
+          border-radius: 6px;
+          margin-bottom: 8px;
+          background: #fff;
+        "
+      >
+        <div style="font-size: 0.9rem; color: #333; font-weight: 600">
+          {% if c.author %}{{ c.author.username }}{% else %}System{% endif %}
+          <span style="color: #888; font-weight: 400; font-size: 0.85rem">
+            • {{ c.created_at|date:"Y-m-d H:i" }}
+          </span>
+        </div>
+        <div style="margin-top: 6px; white-space: pre-wrap; color: #222">
+          {{ c.text }}
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p style="color: #666">No comments yet.</p>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}

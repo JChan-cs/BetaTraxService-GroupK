@@ -1,7 +1,41 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head><title>BetaTrax</title></head>
-<body>
-    {% block content %}{% endblock %}
-</body>
+  <head>
+    <title>BetaTrax</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <style>
+      .messages {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 12px 0;
+      }
+      .messages li {
+        padding: 8px 10px;
+        border-radius: 4px;
+        margin-bottom: 6px;
+      }
+      .messages li.error {
+        background: #ffe6e6;
+        color: #8a1f1f;
+      }
+      .messages li.success {
+        background: #e6ffea;
+        color: #0b6b20;
+      }
+      .messages li.info {
+        background: #eef6ff;
+        color: #0b4f8a;
+      }
+    </style>
+  </head>
+  <body>
+    {% if messages %}
+    <ul class="messages">
+      {% for message in messages %}
+      <li class="{{ message.tags }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %} {% block content %}{% endblock %}
+  </body>
 </html>
