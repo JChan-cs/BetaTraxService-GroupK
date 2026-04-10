@@ -267,7 +267,7 @@ class DefectReportViewSet(viewsets.ModelViewSet):
             serializer = self.get_serializer(defect)
             return Response(serializer.data)
         
-        Comment.objects.create(author=request.user, text=f"Defect #{defect.id} assigned to {request.user.username}.")
+        Comment.objects.create(author=request.user, text=f"System: Defect #{defect.id} assigned to {request.user.username}.")
         messages.success(request, "Success! Defect assigned.")
         return render(request, 'defects/take_success.html', {'defect': defect})
     @action(detail=False, methods=['get'], url_path='new', permission_classes=[IsAuthenticated])

@@ -107,7 +107,7 @@ class DefectEvaluationSerializer(serializers.ModelSerializer):
             system_message = f"System: Report #{instance.id} has been rejected."
         elif action == 'duplicate':
             instance.Status = 'Duplicate'
-            system_message = f"System: Report #{instance.id} marked as duplicate of report #{validated_data.get('duplicate_id')}."
+            system_message = f"System: Report #{instance.id} marked as duplicate of Report #{validated_data.get('duplicate_id')}."
         
         instance.save()
 

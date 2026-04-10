@@ -57,6 +57,7 @@ def update_retest_status(request, pk):
 
             result.save()
             Comment.objects.create(
+                defect= defect,
                 author = request.user, 
                 text=f"System Update: Report #{result.report_id} has been marked as {new_status} by {request.user.username}."
             )
