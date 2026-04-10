@@ -9,6 +9,5 @@ router.register(r'result', ResultViewSet, basename='api-results')
 urlpatterns = [
     path('', views.ResultListView.as_view(), name='result-list'),
     path('<int:pk>/update/', views.update_retest_status, name='update-retest-status'),        
-    # Unused kept for now
     path('api/', include(router.urls)),
 ]
