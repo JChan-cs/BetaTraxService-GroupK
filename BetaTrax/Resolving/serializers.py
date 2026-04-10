@@ -1,5 +1,3 @@
-# Unused API also kept for now
-
 from rest_framework import serializers
 from .models import Result
 
