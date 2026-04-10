@@ -51,7 +51,11 @@
             <td>{{ item.date|date:"d/m/Y H:i" }}</td>
             <td>{{ item.retest_result }}</td>
             <td>
-              <a href="{% url 'update-retest-status' item.id %}" class="btn-update">Update</a>
+              {% if item.retest_result == 'Pending Retest' %}
+                <a href="{% url 'update-retest-status' item.id %}" class="btn-update">Update</a>
+              {% else %}
+                <span class="status-locked">Completed</span>
+              {% endif %}
             </td>
           </tr>
         {% empty %}

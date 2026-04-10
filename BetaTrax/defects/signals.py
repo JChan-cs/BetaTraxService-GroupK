@@ -39,9 +39,10 @@ def notify_tester(sender, instance, created, **kwargs):
 @receiver(post_save, sender=DefectReport)
 def generate_retest_record(sender, instance, created, **kwargs):
     if instance.Status == 'Fixed':
-        if not Result.objects.filter(report_id=str(instance.id)).exists():
+        if not Result.objects.filter(report_id = str(instance.id)).exists():
             
             Result.objects.create(
-                report_id=str(instance.id),
-                retest_result='Pending Retest',
+                report_id = str(instance.id),
+                retest_result = 'Pending Retest',
+                author= instance.assigned_to
             )

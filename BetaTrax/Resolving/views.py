@@ -47,17 +47,15 @@ def update_retest_status(request, pk):
         new_status = request.POST.get('status') 
         
         if new_status in ['Resolved', 'Reopened']:
-            result.retest_result = new_status
-
             # Update the status of the associated DefectReport
             defect = get_object_or_404(DefectReport, pk=result.report_id)
-            serializer = DefectReportStatusSerializer(instance=defect, data={'Status': new_status}, context={'request': request})
+            serializer = DefectReportStatusSerializer(instance=defect, data={'Status': new_status, 'assigned_to': defect.assigned_to_id}, context={'request': request})
             serializer.is_valid(raise_exception=True)
             serializer.save()
 
             result.save()
             Comment.objects.create(
-                defect= defect,
+                defect = defect,
                 author = request.user, 
                 text=f"System Update: Report #{result.report_id} has been marked as {new_status} by {request.user.username}."
             )
