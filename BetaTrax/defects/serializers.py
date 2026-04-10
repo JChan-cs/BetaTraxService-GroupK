@@ -101,17 +101,26 @@ class DefectEvaluationSerializer(serializers.ModelSerializer):
         action = validated_data.get('action')
         if action == 'accept':
             instance.Status = 'Open'
+            system_message = f"System: Report #{instance.id} accepted. Status set to 'Open' (Severity: {instance.Severity}, Priority: {instance.Priority})."
         elif action == 'reject':
             instance.Status = 'Rejected'
+            system_message = f"System: Report #{instance.id} has been rejected."
         elif action == 'duplicate':
             instance.Status = 'Duplicate'
+            system_message = f"System: Report #{instance.id} marked as duplicate of report #{validated_data.get('duplicate_id')}."
         
         instance.save()
 
-        # 3. Handle Comment Creation (if user is authenticated)
-        comment_text = validated_data.get('comment_text')
+        # 3. Handle Comment Creation (if user is authenticated)        
         user = self.context.get('request').user
-        if comment_text and user and user.is_authenticated:
-            Comment.objects.create(author=user, text=comment_text)
+        if user and user.is_authenticated:
+            # Create automated status update comment
+            if system_message:
+                Comment.objects.create(author=user, defect=instance, text=system_message)
+            
+            # Create manual comment text if provided by the PO
+            comment_text = validated_data.get('comment_text')
+            if comment_text:
+                Comment.objects.create(author=user, defect=instance, text=comment_text)
 
         return instance
