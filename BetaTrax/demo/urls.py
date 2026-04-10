@@ -26,4 +26,5 @@ urlpatterns = [
     path('assigned/', include('assigned_defects.urls'), name='assigned_defects'),
     path('product_reg/', include('products.urls')), 
     path('', TemplateView.as_view(template_name='index.html'), name='home'),
+    path('api/', include('products.urls')),
 ]
