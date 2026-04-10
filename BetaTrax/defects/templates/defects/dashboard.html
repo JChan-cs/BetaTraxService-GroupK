@@ -1,0 +1,67 @@
+{% extends "base.html" %} {% block content %}
+<div
+  style="
+    max-width: 900px;
+    margin: 24px auto;
+    font-family:
+      system-ui,
+      -apple-system,
+      &quot;Segoe UI&quot;,
+      Roboto,
+      Arial;
+  "
+>
+  <h2 style="margin-top: 0">Dashboard</h2>
+  <p style="color: #444">
+    Signed in as: <strong>{{ username }}</strong> &nbsp; • &nbsp; Role:
+    <strong>{{ role }}</strong>
+  </p>
+
+  <div style="margin-top: 18px">
+    <h3 style="margin-bottom: 8px">Available actions</h3>
+    {% if links %}
+    <ul style="list-style: none; padding: 0; margin: 0">
+      {% for item in links %}
+      <li
+        style="
+          margin-bottom: 10px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        "
+      >
+        <a
+          href="{{ item.url }}"
+          target="_blank"
+          rel="noopener noreferrer"
+          style="
+            display: inline-block;
+            padding: 8px 12px;
+            border-radius: 6px;
+            background: #007bff;
+            color: #fff;
+            text-decoration: none;
+          "
+          >{{ item.name }}</a
+        >
+        <span style="color: #666; font-size: 0.9rem"
+          >{{ item.method }} —
+          <code
+            style="
+              background: #f6f8fa;
+              padding: 4px;
+              border-radius: 4px;
+              color: #333;
+            "
+            >{{ item.url }}</code
+          ></span
+        >
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p style="color: #666">No actions available for your role.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

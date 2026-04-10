@@ -49,7 +49,7 @@ def update_retest_status(request, pk):
         if new_status in ['Resolved', 'Reopened']:
             # Update the status of the associated DefectReport
             defect = get_object_or_404(DefectReport, pk=result.report_id)
-            serializer = DefectReportStatusSerializer(instance=defect, data={'Status': new_status, 'assigned_to': defect.assigned_to_id}, context={'request': request})
+            serializer = DefectReportStatusSerializer(instance=defect, data={'Status': new_status, 'assigned_to': defect.assigned_to}, context={'request': request})
             serializer.is_valid(raise_exception=True)
             serializer.save()
 

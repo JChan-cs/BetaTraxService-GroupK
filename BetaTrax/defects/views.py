@@ -18,6 +18,7 @@ from .serializers import DefectReportSerializer, DefectReportStatusSerializer, D
 class DefectReportViewSet(viewsets.ModelViewSet):
     queryset = DefectReport.objects.all()
     serializer_class =  DefectReportSerializer
+    renderer_classes = [JSONRenderer, TemplateHTMLRenderer, BrowsableAPIRenderer]
     # renderer_classes = [JSONRenderer, TemplateHTMLRenderer]
     search_fields = ["ReportTitle", "TesterID"]
 
@@ -27,6 +28,38 @@ class DefectReportViewSet(viewsets.ModelViewSet):
         if TargetedStatus is not None:
             queryset = queryset.filter(Status = TargetedStatus)
         return queryset
+
+    def list(self, request, *args, **kwargs):
+        """Override list to render an HTML template when HTML is requested.
+
+        - If the client accepts HTML, render 'defects/reports.html' with the defects queryset.
+        - Otherwise, return the normal JSON serialized response.
+        """
+        queryset = self.filter_queryset(self.get_queryset())
+
+        # If the request will be rendered as HTML, return a rendered template
+        if request.accepted_renderer.format == 'html':
+            # Use Django's render to return a TemplateResponse
+            return render(request, 'defects/reports.html', {'defects': queryset})
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk=None):
+        """Render an HTML detail page when HTML is requested, otherwise return JSON."""
+        defect = self.get_object()
+        if request.accepted_renderer.format == 'html':
+            comments = Comment.objects.filter(defect=defect).order_by('-created_at')[:50]
+            context = {
+                'defect': defect,
+                'comments': comments,
+                'severity_choices': DefectReport.SeverityC,
+                'priority_choices': DefectReport.PriorityC,
+            }
+            return render(request, 'defects/defect_detail.html', context)
+
+        serializer = self.get_serializer(defect)
+        return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
         data = request.data.copy()
@@ -48,8 +81,11 @@ class DefectReportViewSet(viewsets.ModelViewSet):
             #     return redirect('defectreport-list')
 
             data = request.data.copy()
-            data['Status'] = 'New'  # Force status to New
-            
+            # Force status to New and prevent submitters from setting Severity/Priority
+            data['Status'] = 'New'
+            data.pop('Severity', None)
+            data.pop('Priority', None)
+
             serializer = self.get_serializer(data=data)
             if serializer.is_valid():
                 serializer.save()
@@ -62,15 +98,8 @@ class DefectReportViewSet(viewsets.ModelViewSet):
             if request.accepted_renderer.format == 'json':
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             
-            return render(request, 'defects/submit_defect.html', {
-                'errors': serializer.errors, 
-                'severity_choices': DefectReport.SeverityC,
-                'priority_choices': DefectReport.PriorityC
-            })
-        return render(request, 'defects/submit_defect.html', {
-            'severity_choices': DefectReport.SeverityC,
-            'priority_choices': DefectReport.PriorityC
-        })
+            return render(request, 'defects/submit_defect.html', {'errors': serializer.errors})
+        return render(request, 'defects/submit_defect.html')
 
     @action(
         detail=True,
@@ -137,6 +166,15 @@ class DefectReportViewSet(viewsets.ModelViewSet):
             links = [{"name": "Login", "url": "/admin/login/", "method": "GET"},
                 {"name": "View All Reports (Read Only)", "url": "/api/reports/", "method": "GET"},]
       
+        # If the client accepts HTML, render a simple dashboard page.
+        if request.accepted_renderer.format == 'html':
+            context = {
+                'username': user.username if user.is_authenticated else 'Not logged in',
+                'role': role,
+                'links': links,
+            }
+            return render(request, 'defects/dashboard.html', context)
+
         return Response({'username': user.username if user.is_authenticated else 'Not logged in','role': role,'links': links,})
   
     @action(detail=True, methods=['patch'], url_path='accept', permission_classes=[IsAuthenticated])
@@ -269,6 +307,7 @@ class DefectReportViewSet(viewsets.ModelViewSet):
         Comment.objects.create(author=request.user, text=f"System: Defect #{defect.id} assigned to {request.user.username}.")
         messages.success(request, "Success! Defect assigned.")
         return render(request, 'defects/take_success.html', {'defect': defect})
+    
     @action(detail=False, methods=['get'], url_path='new', permission_classes=[IsAuthenticated])
     def new_defects(self, request):
         """API endpoint for Product Owner: list all defects with Status='New'."""
@@ -282,6 +321,7 @@ class DefectReportViewSet(viewsets.ModelViewSet):
         defects = self.get_queryset().filter(assigned_to=request.user, Status='Assigned')
         serializer = self.get_serializer(defects, many=True)
         return Response(serializer.data)
+    
     @action(detail=False, methods=['get'], url_path='my-tasks', permission_classes=[IsAuthenticated])
     def my_tasks(self, request):
         if not request.user.groups.filter(name='Developer').exists():
