@@ -1,3 +1,5 @@
+# Unused API kept for now
+
 from rest_framework import viewsets, permissions
 from .models import Result
 from .serializers import ResolvingSerializer
