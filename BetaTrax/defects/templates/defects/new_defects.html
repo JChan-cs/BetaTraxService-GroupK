@@ -1,0 +1,99 @@
+{% extends "base.html" %} {% block content %}
+<div
+  style="
+    max-width: 1100px;
+    margin: 28px auto;
+    font-family:
+      system-ui,
+      -apple-system,
+      &quot;Segoe UI&quot;,
+      Roboto,
+      Arial;
+  "
+>
+  <h1 style="margin: 0 0 8px 0">
+    New Defect Reports
+    <small style="color: #666; font-size: 0.9rem">(Pending Evaluation)</small>
+  </h1>
+
+  <div
+    style="
+      margin-top: 16px;
+      overflow: auto;
+      border: 1px solid #e6e6e6;
+      border-radius: 8px;
+      background: #fff;
+      padding: 12px;
+    "
+  >
+    <table style="width: 100%; border-collapse: collapse; font-size: 0.95rem">
+      <thead>
+        <tr style="background: #f7f9fb; color: #222; text-align: left">
+          <th style="padding: 10px 12px; border-bottom: 1px solid #eaecef">
+            ID
+          </th>
+          <th style="padding: 10px 12px; border-bottom: 1px solid #eaecef">
+            Title
+          </th>
+          <th style="padding: 10px 12px; border-bottom: 1px solid #eaecef">
+            Tester
+          </th>
+          <th style="padding: 10px 12px; border-bottom: 1px solid #eaecef">
+            Submitted
+          </th>
+          <th style="padding: 10px 12px; border-bottom: 1px solid #eaecef">
+            Status
+          </th>
+          <th style="padding: 10px 12px; border-bottom: 1px solid #eaecef">
+            Action
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if defects %} {% for defect in defects %}
+        <tr style="border-bottom: 1px solid #f1f3f5">
+          <td style="padding: 10px 12px; vertical-align: top; width: 64px">
+            {{ defect.id }}
+          </td>
+          <td style="padding: 10px 12px; vertical-align: top">
+            {{ defect.ReportTitle }}
+          </td>
+          <td style="padding: 10px 12px; vertical-align: top">
+            {{ defect.TesterID }}
+          </td>
+          <td style="padding: 10px 12px; vertical-align: top">
+            {{ defect.CreatedTime|date:"Y-m-d H:i" }}
+          </td>
+          <td style="padding: 10px 12px; vertical-align: top; color: #444">
+            {{ defect.Status }}
+          </td>
+          <td style="padding: 10px 12px; vertical-align: top">
+            <a
+              href="{% url 'defectreport-evaluate' defect.id %}"
+              style="
+                display: inline-block;
+                padding: 8px 12px;
+                background: #007bff;
+                color: #fff;
+                border-radius: 6px;
+                text-decoration: none;
+              "
+              >Evaluate</a
+            >
+          </td>
+        </tr>
+        {% endfor %} {% else %}
+        <tr>
+          <td
+            colspan="6"
+            style="padding: 18px 12px; color: #666; text-align: center"
+          >
+            No new defect reports.
+          </td>
+        </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
