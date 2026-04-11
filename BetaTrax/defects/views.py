@@ -12,10 +12,15 @@ from comments.models import Comment
 
 from .models import DefectReport
 from .serializers import DefectReportSerializer, DefectReportStatusSerializer, DefectEvaluationSerializer
+from .product_owner_confirm_views import ProductOwnerConfirmViewsMixin
+from .product_owner_retest_views import ProductOwnerRetestViewsMixin
 
 
-
-class DefectReportViewSet(viewsets.ModelViewSet):
+class DefectReportViewSet(
+    ProductOwnerConfirmViewsMixin,
+    ProductOwnerRetestViewsMixin,
+    viewsets.ModelViewSet
+):
     queryset = DefectReport.objects.all()
     serializer_class =  DefectReportSerializer
     renderer_classes = [JSONRenderer, TemplateHTMLRenderer, BrowsableAPIRenderer]
