@@ -14,11 +14,13 @@ from .models import DefectReport
 from .serializers import DefectReportSerializer, DefectReportStatusSerializer, DefectEvaluationSerializer
 from .product_owner_confirm_views import ProductOwnerConfirmViewsMixin
 from .product_owner_retest_views import ProductOwnerRetestViewsMixin
+from .developer_views import DeveloperViewsMixin
 
 
 class DefectReportViewSet(
     ProductOwnerConfirmViewsMixin,
     ProductOwnerRetestViewsMixin,
+    DeveloperViewsMixin,
     viewsets.ModelViewSet
 ):
     queryset = DefectReport.objects.all()
