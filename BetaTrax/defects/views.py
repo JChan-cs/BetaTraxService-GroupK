@@ -152,20 +152,19 @@ class DefectReportViewSet(
         links = []
         role = "Anonymous"
         if user.is_authenticated:
-            if user.groups.filter(name='Tester').exists():
-                role = "Tester"
-                links = [
-                    {"name": "Submit Defect Report", "url": "/defects/reports/", "method": "POST"},
-                    {"name": "My Submissions", "url": f'/defects/reports/?tester_id={user.id}', "method": "GET"},]
-            elif user.groups.filter(name='ProductOwner').exists():
+            if user.groups.filter(name='ProductOwner').exists():
                 role = "Product Owner"
-                links = [{'name': 'New Reports (Pending Evaluation)', 'url': '/defects/reports/new', "method": "GET"},
-                    {"name": "Open Defects (Ready to Assign)", "url": '/defects/reports/?Status=Open', "method": "GET"},
-                    {"name": "All Reports", 'url': '/defects/reports/', "method": "GET"},
+                links = [
+                    {'name': 'Home', 'url': '/', 'method': 'GET'},
+                    {'name': 'New Reports (Pending Evaluation)', 'url': '/defects/reports/new', 'method': 'GET'},
+                    {'name': 'Open Defects (Ready to Assign)', 'url': '/defects/reports/open', 'method': 'GET'},
+                    {'name': 'All Reports', 'url': '/defects/reports/', 'method': 'GET'},
+                    {'name': 'Open Fixed Defects', 'url': '/resolved/', 'method': 'GET'},
                 ]
             elif user.groups.filter(name='Developer').exists():
                 role = 'Developer'
-                links = [{"name": "My Assigned Tasks", "url": "/defects/reports/?Status=Assigned", "method": "GET"},{"name": "Open Defects (Available)", 'url': '/defects/reports/?Status=Open', "method": 'GET'},]
+                links = [{"name": "My Assigned Tasks", "url": "/defects/reports/?Status=Assigned", "method": "GET"},
+                         {"name": "Open Defects (Available)", 'url': '/defects/reports/open', "method": 'GET'},]
             else:
                 role = 'Authenticated User (No Role)'
                 links = [{"name": "View All Reports", 'url': '/defects/reports/', 'method': 'GET'},]
