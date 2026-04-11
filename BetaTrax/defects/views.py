@@ -159,7 +159,7 @@ class DefectReportViewSet(
                     {"name": "My Submissions", "url": f'/defects/reports/?tester_id={user.id}', "method": "GET"},]
             elif user.groups.filter(name='ProductOwner').exists():
                 role = "Product Owner"
-                links = [{'name': 'New Reports (Pending Evaluation)', 'url': '/defects/reports/?Status=New', "method": "GET"},
+                links = [{'name': 'New Reports (Pending Evaluation)', 'url': '/defects/reports/new', "method": "GET"},
                     {"name": "Open Defects (Ready to Assign)", "url": '/defects/reports/?Status=Open', "method": "GET"},
                     {"name": "All Reports", 'url': '/defects/reports/', "method": "GET"},
                 ]
@@ -319,6 +319,9 @@ class DefectReportViewSet(
     def new_defects(self, request):
         """API endpoint for Product Owner: list all defects with Status='New'."""
         defects = self.get_queryset().filter(Status='New')
+        # If HTML is requested, render a template for browser clients.
+        if request.accepted_renderer.format == 'html':
+            return render(request, 'defects/new_defects.html', {'defects': defects})
         serializer = self.get_serializer(defects, many=True)
         return Response(serializer.data)
 
