@@ -62,10 +62,13 @@ class DefectReportStatusSerializer(serializers.ModelSerializer):
             )
         if transition == ("Fixed", "Reopened"):
             # Unassign reopened reports to allow reassignment
+            # assign None (PK expected by related field)
             new_instance["assigned_to"] = None
         if transition == ("Reopened", "Assigned"):
             # Reassign to the user performing the action
-            new_instance["assigned_to"] = request.user
+            # serializers expect a PK value for relational fields when passed in data,
+            # so convert the user instance into its PK here.
+            new_instance["assigned_to"] = request.user.pk if hasattr(request.user, 'pk') else request.user
         return new_instance
 
 class DefectEvaluationSerializer(serializers.ModelSerializer):
