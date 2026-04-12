@@ -24,14 +24,15 @@ future, may be rolled out as a product itself, for adoption by other software de
 Service Structure:
 
 1. **Dashboard:** Top navigation bar with role‑based links.
-2. **Defect List(Evaluation)** List that allows Product Owners to check on submitted defect reports. Product Owners can click on a report to accept or reject it.
-3. **Product Owner Evaluation View:** Area to allow Product Owners to accepet or reject report.
-4. **Product Owner View:** List that allow Product Owners to keep track of reports that can be assigned.
-5. **Defect List(Assignment):** List that allows Developers to check on all accepted defect reports. Developers can click on chosen reports to assign themselves to the corresponding defect.
-6. **Defect List(Assigned):** List that allows Developers to check on all defect reports they have been assigned to.
-7. **Tester Retest View:** Area to allow Tester to comment on defect after a Developer modified the code.
-8. **Product Owner Confirm View:** Area to allow Product Owner to marks defect as solved or reopen if failed.
-9. **Comment Section:** Section that display progress on all defects. Product Owners and Developer can click on individual comments to enact Evaluation/Assignment/Vertification.
+2. **Product Registration:** Tab that allows Product Owners to add new Products.
+3. **Defect List(Evaluation)** List that allows Product Owners to check on submitted defect reports. Product Owners can click on a report to accept or reject it.
+4. **Product Owner Evaluation View:** Area to allow Product Owners to accepet or reject report.
+5. **Product Owner View:** List that allow Product Owners to keep track of reports that can be assigned.
+6. **Defect List(Assignment):** List that allows Developers to check on all accepted defect reports. Developers can click on chosen reports to assign themselves to the corresponding defect.
+7. **Defect List(Assigned):** List that allows Developers to check on all defect reports they have been assigned to.
+8. **Tester Retest View:** Area to allow Tester to comment on defect after a Developer modified the code.
+9. **Product Owner Confirm View:** Area to allow Product Owner to marks defect as solved or reopen if failed.
+10. **Comment Section:** Section that display progress on all defects. Product Owners and Developer can click on individual comments to enact Evaluation/Assignment/Vertification.
 
 ## Team Members
 
@@ -84,7 +85,4 @@ Service Structure:
 ├── requirements.txt              # Contains list of required package and dependencies    
 ```
 
-# References
-
----
 
