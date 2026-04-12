@@ -155,7 +155,6 @@ class DefectReportViewSet(
             if user.groups.filter(name='ProductOwner').exists():
                 role = "Product Owner"
                 links = [
-                    {'name': 'Home', 'url': '/', 'method': 'GET'},
                     {'name': 'New Reports (Pending Evaluation)', 'url': '/defects/reports/new', 'method': 'GET'},
                     {'name': 'Open Defects (Ready to Assign)', 'url': '/defects/reports/open', 'method': 'GET'},
                     {'name': 'All Reports', 'url': '/defects/reports/', 'method': 'GET'},
