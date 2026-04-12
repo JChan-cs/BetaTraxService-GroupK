@@ -80,14 +80,14 @@ BetaTesters submit defect report through external API, currently coded as a subm
 
 ## Contributions (Sprint 2)
 
-Product Backlog : Tam Ho Chun, Chan Hin Chun Jensen 
-Sprint Backlog: Chan Hin Chun Jensen
-Partial Domain Model : Lam Cheung Lam Nicholas, Ho Kin Sang
-Making html UIs: Ho Kin Sang
-Product Registration By Product Owner: Wong King Wang
-Reopen Functionality: Lam Cheung Lam Nicholas
-README: Chan Hin Chun Jensen
-Fixing and Improving Sprint 1 Code: All
+1. Product Backlog : Tam Ho Chun, Chan Hin Chun Jensen
+2. Sprint Backlog: Chan Hin Chun Jensen
+3. Partial Domain Model : Lam Cheung Lam Nicholas, Ho Kin Sang
+4. Making html UIs: Ho Kin Sang
+5. Product Registration By Product Owner: Wong King Wang
+6. Reopen Functionality: Lam Cheung Lam Nicholas
+7. README: Chan Hin Chun Jensen
+8. Fixing and Improving Sprint 1 Code: All
 
 ---
 
