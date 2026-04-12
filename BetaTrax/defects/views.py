@@ -159,6 +159,7 @@ class DefectReportViewSet(
                     {'name': 'Open Defects (Ready to Assign)', 'url': '/defects/reports/open', 'method': 'GET'},
                     {'name': 'All Reports', 'url': '/defects/reports/', 'method': 'GET'},
                     {'name': 'Open Fixed Defects', 'url': '/resolved/', 'method': 'GET'},
+                    {'name': 'Add New Product', 'url': '/product_reg/dashboard/', 'method': 'GET'}
                 ]
             elif user.groups.filter(name='Developer').exists():
                 role = 'Developer'
