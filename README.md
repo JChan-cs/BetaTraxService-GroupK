@@ -34,6 +34,9 @@ Service Structure:
 9. **Product Owner Confirm View:** Area to allow Product Owner to marks defect as solved or reopen if failed.
 10. **Comment Section:** Section that display progress on all defects. Product Owners and Developer can click on individual comments to enact Evaluation/Assignment/Vertification.
 
+## Assumptions
+BetaTesters submit defect report through external API, currently coded as a submit view
+
 ## Team Members
 
 <!-- markdownlint-disable MD033 -->
@@ -75,14 +78,31 @@ Service Structure:
 
 <!-- markdownlint-enable MD033-->
 
+## Contributions (Sprint 2)
+
+Product Backlog : Tam Ho Chun, Chan Hin Chun Jensen 
+Sprint Backlog: Chan Hin Chun Jensen
+Partial Domain Model : Lam Cheung Lam Nicholas, Ho Kin Sang
+Making html UIs: Ho Kin Sang
+Product Registration By Product Owner: Wong King Wang
+Reopen Functionality: Lam Cheung Lam Nicholas
+README: Chan Hin Chun Jensen
+Fixing and Improving Sprint 1 Code: All
+
 ---
 
-# Repository structure
+## Repository structure
 
 ```sh
 ├── README.md                     # Readme for the current repository
 ├── BetaTrax/                     # Contains main Script
 ├── requirements.txt              # Contains list of required package and dependencies    
 ```
+---
+## Limitations
+
+User Registration is currently not supported, must be created by SuperUser
+Functionality to send emails to Tester is not yet implemented
+
 
 
