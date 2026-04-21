@@ -46,6 +46,19 @@ class DefectReport(models.Model):
         blank=True,
         related_name='assigned_defects',
     )
+    
 
     def __str__(self):
         return f"{self.ReportTitle} - {self.Status}"
+
+class DeveloperMetrics(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='developer_metrics'
+    )
+    defects_fixed = models.PositiveIntegerField(default=0)
+    defects_reopened = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.user.username} - Fixed: {self.defects_fixed}, Reopened: {self.defects_reopened}"

@@ -373,3 +373,37 @@ class DefectReportViewSet(
             serializer.save()
             return redirect("assigned_defects")
         return render(request, 'defects/mark_fixed.html', context={"defect": defect})
+    @action(detail=False, methods=['get'], url_path='developer-metrics/(?P<user_id>[0-9]+)', permission_classes=[IsAuthenticated])
+    def developer_metrics(self, request, user_id=None):
+        """Return effectiveness rating for a developer."""
+        from django.contrib.auth.models import User
+        from .models import DeveloperMetrics
+
+        try:
+            user = User.objects.get(pk=user_id)
+        except User.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        metrics, _ = DeveloperMetrics.objects.get_or_create(user=user)
+        fixed = metrics.defects_fixed
+        reopened = metrics.defects_reopened
+
+        if fixed < 20:
+            rating = "Insufficient data"
+        else:
+            ratio = reopened / fixed
+            if ratio < 1/32:
+                rating = "Good"
+            elif ratio < 1/8:
+                rating = "Fair"
+            else:
+                rating = "Poor"
+
+        return Response({
+            "user_id": user.id,
+            "username": user.username,
+            "defects_fixed": fixed,
+            "defects_reopened": reopened,
+            "ratio": round(reopened / fixed, 6) if fixed >= 20 else None,
+            "effectiveness": rating
+        })
