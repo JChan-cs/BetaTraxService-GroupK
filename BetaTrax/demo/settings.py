@@ -25,27 +25,37 @@ SECRET_KEY = 'django-insecure-o7c=wl5qx$3lv%7rvlz*2bn%u0)g-r05nkt6a)ihu+bxf8vwlw
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '.lvh.me', '127.0.0.1']
 
 
 # Application definition
 
-INSTALLED_APPS = [
-    'defects.apps.DefectsConfig',
-    'comments.apps.CommentsConfig',
-    'Resolving.apps.ResolvingConfig',
-    'assigned_defects.apps.AssignedDefectsConfig',
+SHARED_APPS = [
+    'django_tenants',
+    'customers',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework',
-    'products',
 ]
 
+TENANT_APPS = [
+    'defects.apps.DefectsConfig',
+    'comments.apps.CommentsConfig',
+    'Resolving.apps.ResolvingConfig',
+    'assigned_defects.apps.AssignedDefectsConfig',
+    'rest_framework',
+    'products',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+]
+
+INSTALLED_APPS = list(SHARED_APPS) + [app for app in TENANT_APPS if app not in SHARED_APPS]
+
 MIDDLEWARE = [
+    'django_tenants.middleware.main.TenantMainMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -67,6 +77,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.request',
             ],
         },
     },
@@ -80,10 +91,22 @@ WSGI_APPLICATION = 'demo.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django_tenants.postgresql_backend',
+        'NAME': 'postgres', 
+        'USER': 'postgres', 
+        'PASSWORD': 'password', 
+        'HOSTS' : 'localhost', 
+        'PORT': '5432',
     }
 }
+
+TENANT_MODEL = "customers.Client"
+
+TENANT_DOMAIN_MODEL = "customers.Domain"
+
+DATABASE_ROUTERS = (
+    'django_tenants.routers.TenantSyncRouter',
+)
 
 
 # Password validation

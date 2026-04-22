@@ -1,8 +1,6 @@
 from django.db import models
 from django.conf import settings
 
-
-
 class DefectReport(models.Model):
     StatusC = [
         ("New", "New"),
