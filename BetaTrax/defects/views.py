@@ -15,6 +15,7 @@ from .serializers import DefectReportSerializer, DefectReportStatusSerializer, D
 from .product_owner_confirm_views import ProductOwnerConfirmViewsMixin
 from .product_owner_retest_views import ProductOwnerRetestViewsMixin
 from .developer_views import DeveloperViewsMixin
+from .developer_metrics import build_metrics_response
 
 
 class DefectReportViewSet(
@@ -387,23 +388,4 @@ class DefectReportViewSet(
         metrics, _ = DeveloperMetrics.objects.get_or_create(user=user)
         fixed = metrics.defects_fixed
         reopened = metrics.defects_reopened
-
-        if fixed < 20:
-            rating = "Insufficient data"
-        else:
-            ratio = reopened / fixed
-            if ratio < 1/32:
-                rating = "Good"
-            elif ratio < 1/8:
-                rating = "Fair"
-            else:
-                rating = "Poor"
-
-        return Response({
-            "user_id": user.id,
-            "username": user.username,
-            "defects_fixed": fixed,
-            "defects_reopened": reopened,
-            "ratio": round(reopened / fixed, 6) if fixed >= 20 else None,
-            "effectiveness": rating
-        })
+        return Response(build_metrics_response(user, fixed, reopened))

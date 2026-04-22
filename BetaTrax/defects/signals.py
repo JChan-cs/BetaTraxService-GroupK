@@ -1,7 +1,8 @@
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.core.mail import send_mail
-from .models import DefectReport, DeveloperMetrics
+from .models import DefectReport
+from .developer_metrics import apply_status_transition_metrics
 from Resolving.models import Result
 
 @receiver(post_save, sender=DefectReport)
@@ -49,34 +50,26 @@ def generate_retest_record(sender, instance, created, **kwargs):
 
 @receiver(pre_save, sender=DefectReport)
 def track_old_status(sender, instance, **kwargs):
-    """Store the old status before saving."""
+    """Store old status/assignee before saving for transition-aware metrics."""
     if instance.pk:
         try:
             old_instance = sender.objects.get(pk=instance.pk)
             instance._old_status = old_instance.Status
+            instance._old_assigned_to = old_instance.assigned_to
         except sender.DoesNotExist:
             instance._old_status = None
+            instance._old_assigned_to = None
     else:
         instance._old_status = None
+        instance._old_assigned_to = None
 
 @receiver(post_save, sender=DefectReport)
 def update_developer_metrics(sender, instance, created, **kwargs):
     """Update fixed/reopened counts when status changes."""
     old_status = getattr(instance, '_old_status', None)
-    new_status = instance.Status
-    assigned_to = instance.assigned_to
-
-    if not assigned_to:
-        return
-
-    metrics, _ = DeveloperMetrics.objects.get_or_create(user=assigned_to)
-
-    # Fixed: status changed to 'Fixed' (and was not already Fixed)
-    if new_status == 'Fixed' and old_status != 'Fixed':
-        metrics.defects_fixed += 1
-        metrics.save()
-
-    # Reopened: status changed to 'Reopened' (and was not already Reopened)
-    if new_status == 'Reopened' and old_status != 'Reopened':
-        metrics.defects_reopened += 1
-        metrics.save()
+    old_assigned_to = getattr(instance, '_old_assigned_to', None)
+    apply_status_transition_metrics(
+        instance=instance,
+        old_status=old_status,
+        old_assigned_to=old_assigned_to,
+    )
