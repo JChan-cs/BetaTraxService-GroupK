@@ -103,7 +103,7 @@ SPECTACULAR_SETTINGS = {
         {'name': 'comments', 'description': 'Endpoints related to comments'},
         {'name': 'defects', 'description': 'Endpoints related to defect reports'},
         {'name': 'product_reg', 'description': 'Endpoints related to product registration'},
-        {'name': 'resolved', 'description': 'Endpoints related to resolved defects'},
+        {'name': 'resolved', 'description': 'Endpoints collection related to fixed defect results'},
     ]
 }
 
