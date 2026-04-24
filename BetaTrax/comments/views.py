@@ -3,17 +3,13 @@ from django.contrib import messages
 from django.shortcuts import redirect
 from .models import Comment
 from django.db.models import Q
-from drf_spectacular.utils import extend_schema
 
 class CommentListView(ListView):
     model = Comment
     template_name = 'comments/comment_list.html'
     context_object_name = 'comments'
     paginate_by = 25
-    
-    @extend_schema(
-        description="List all comments with optional search and date filtering.",
-    )
+        
     def get_queryset(self):
         queryset = Comment.objects.select_related('author').all().order_by('-created_at')
         query = self.request.GET.get('q')

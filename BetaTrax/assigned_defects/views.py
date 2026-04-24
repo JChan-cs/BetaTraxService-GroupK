@@ -1,13 +1,14 @@
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, serializers
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from defects.models import DefectReport
 from defects.serializers import DefectReportStatusSerializer
-from drf_spectacular.utils import extend_schema, OpenApiParameter
+
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiResponse, inline_serializer
 from drf_spectacular.types import OpenApiTypes
 
 @login_required
@@ -26,22 +27,36 @@ def new_defects_list(request):
     return render(request, "assigned/new_defects.html", {"defects": defects})
 
 @extend_schema(
+    summary="Change defect status",
+    description="Update the status of a defect report. User must be the assignee.",
     request=DefectReportStatusSerializer,
-    responses={200: DefectReportStatusSerializer, 400: "Bad Request"},
     parameters=[
         OpenApiParameter(
             name='id',
-            description='Primary key of the defect report to update',
-            required=True,
             type=OpenApiTypes.INT,
-            location=OpenApiParameter.PATH
+            location=OpenApiParameter.PATH,
+            description='Defect report ID',
+            required=True,
         )
     ],
+    responses={
+        200: OpenApiResponse(
+            response=inline_serializer(
+                name="DefectStatusUpdateResponse",
+                fields={
+                    "message": serializers.CharField(),
+                    "data": DefectReportStatusSerializer()
+                }
+            ),
+            description="Defect status updated successfully",
+        ), 
+        400: OpenApiResponse(description="Invalid input data"),
+        403: OpenApiResponse(description="Permission denied"),
+        404: OpenApiResponse(description="Defect report not found"),},
 )
 @api_view(["PATCH"])
 @permission_classes([IsAuthenticated])
 def change_defect_status(request, pk):
-    """Update the status of an assigned defect report."""
     defect = get_object_or_404(DefectReport, pk=pk)
 
     serializer = DefectReportStatusSerializer(defect, data=request.data, context={"request": request}, partial=True)

@@ -32,7 +32,7 @@ class DefectReport(models.Model):
     Steps = models.TextField()
     TesterID = models.CharField(max_length=30)
     Email = models.EmailField(blank=True, null=True)
-    Status = models.CharField(max_length=20, choices=StatusC, default="New")
+    Status = models.CharField(max_length=20, choices=StatusC, default="New", help_text="Current status of the defect report.")
     Severity = models.CharField(max_length=20, choices=SeverityC, blank=True, null=True)
     Priority = models.CharField(max_length=20, choices=PriorityC, blank=True, null=True)
     CreatedTime = models.DateTimeField(auto_now_add=True)
@@ -43,6 +43,7 @@ class DefectReport(models.Model):
         null=True,
         blank=True,
         related_name='assigned_defects',
+        help_text="The user to whom this defect is currently assigned. Can be null if unassigned."
     )
     
 
