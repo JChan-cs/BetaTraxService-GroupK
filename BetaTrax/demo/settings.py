@@ -94,16 +94,28 @@ REST_FRAMEWORK = {
 
 SPECTACULAR_SETTINGS = {
     'TITLE': 'BetaTrax API',
-    'DESCRIPTION': 'API documentation for BetaTrax',
+    'DESCRIPTION': """Comprehensive API for BetaTrax defect tracking system. The API supports functionalities across five main domains:
+
+1. Assigned Defects
+2. Comments
+3. Defects
+4. Products
+5. Resolving
+
+The main defect report lifecycle is managed through the Defects domain, with developer portion delegated to the Assigned domain and post-fix verification captured in the Resolving domain.
+The Comments domain implements a discussion thread mechanism for each defect report, supporting auditability and team communication.
+
+The Products domain is a separate module for managing product data with defect reports referencing one product, allowing for separation across multiple projects.
+    """,
     'VERSION': '0.1.0',
     'SERVE_INCLUDE_SCHEMA': False,
 
     'TAGS': [
-        {'name': 'assigned', 'description': 'Endpoints related to assigned defects'},
-        {'name': 'comments', 'description': 'Endpoints related to comments'},
-        {'name': 'defects', 'description': 'Endpoints related to defect reports'},
-        {'name': 'product_reg', 'description': 'Endpoints related to product registration'},
-        {'name': 'resolved', 'description': 'Endpoints related to resolved defects'},
+        {'name': 'assigned', 'description': 'Manage developer assignment workflows, including viewing assigned/new defects and updating lifecycle status transitions.'},
+        {'name': 'comments', 'description': 'Capture and retrieve discussion threads attached to defects for auditability and team communication.'},
+        {'name': 'defects', 'description': 'Core defect reporting domain: create, triage, track, and query defect reports and related developer metrics.'},
+        {'name': 'products', 'description': 'Maintain product catalog data (product identifiers, versions, ownership, and release status) used by defect reporting.'},
+        {'name': 'resolving', 'description': 'Record and manage retest or verification outcomes after fixes, including result history by report ID and author.'},
     ]
 }
 
