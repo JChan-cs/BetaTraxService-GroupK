@@ -9,7 +9,7 @@ class DomainInline(admin.TabularInline):
 
 @admin.register(Client)
 class ClientAdmin(TenantAdminMixin, admin.ModelAdmin):
-    list_display = ('name', 'paid_until', 'schema_name')
+    list_display = ('name', 'paid_until')
     inlines = [DomainInline]
 
 # You can also register Domain separately if you want to edit it later
