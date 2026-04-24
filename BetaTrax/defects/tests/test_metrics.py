@@ -68,11 +68,11 @@ class DeveloperMetricsTests(TestCase):
         self.assertEqual(response.data['effectiveness'], 'Poor')
         self.assertGreaterEqual(response.data['ratio'], 1/8)
 
-    def test_ratio_equal_one_over_8_is_fair(self):
+    def test_ratio_equal_one_over_8_is_poor(self):
         DeveloperMetrics.objects.create(user=self.developer, defects_fixed=40, defects_reopened=5)
         response = self.client.get(f'/defects/reports/developer-metrics/{self.developer.id}/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['effectiveness'], 'Fair')
+        self.assertEqual(response.data['effectiveness'], 'Poor')
         self.assertEqual(response.data['ratio'], 0.125)
 
     def test_signal_fixed_increment(self):
@@ -129,7 +129,7 @@ class DeveloperMetricsTests(TestCase):
         self.assertEqual(classify_effectiveness(19, 0), ('Insufficient data', None))
         self.assertEqual(classify_effectiveness(64, 1), ('Good', 0.015625))
         self.assertEqual(classify_effectiveness(32, 1), ('Fair', 0.03125))
-        self.assertEqual(classify_effectiveness(40, 5), ('Fair', 0.125))
+        self.assertEqual(classify_effectiveness(40, 5), ('Poor', 0.125))
         self.assertEqual(classify_effectiveness(40, 6), ('Poor', 0.15))
 
     def test_build_metrics_response_helper(self):
