@@ -3,6 +3,7 @@ from .models import Result
 from .serializers import ResolvingSerializer
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiResponse
 
+@extend_schema(tags=['resolving'])
 @extend_schema_view(
     list=extend_schema(
         summary="List resolving results", 

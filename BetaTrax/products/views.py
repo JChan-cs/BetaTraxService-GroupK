@@ -8,6 +8,7 @@ from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiResp
 
 # API viewset for REST endpoints
 
+@extend_schema(tags=['products'])
 @extend_schema_view(
     list=extend_schema(
         summary="List products", 
