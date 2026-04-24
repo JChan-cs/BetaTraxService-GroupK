@@ -8,7 +8,7 @@ def classify_effectiveness(defects_fixed, defects_reopened):
     ratio = defects_reopened / defects_fixed
     if ratio < 1 / 32:
         rating = "Good"
-    elif ratio <= 1 / 8:
+    elif ratio < 1 / 8:
         rating = "Fair"
     else:
         rating = "Poor"
