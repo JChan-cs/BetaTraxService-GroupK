@@ -3,6 +3,7 @@ from .models import DefectReport
 from comments.models import Comment
 
 class DefectReportSerializer(serializers.ModelSerializer):
+    """Defect report submitted by a user, containing details about the issue and its lifecycle status."""
     class Meta:
         model = DefectReport
         fields = "__all__"
@@ -15,6 +16,7 @@ class DefectReportSerializer(serializers.ModelSerializer):
 
 
 class DefectReportStatusSerializer(serializers.ModelSerializer):
+    """Partial defect report focused on status updates, with validation to enforce lifecycle rules."""
     class Meta:
         model = DefectReport
         fields = ["id", "Status", "assigned_to"]

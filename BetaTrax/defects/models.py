@@ -25,16 +25,16 @@ class DefectReport(models.Model):
         ("Medium", "Medium"),
         ("Low", "Low"),
     ]
-    ProductID = models.CharField(max_length=30)
-    Version = models.CharField(max_length=30)
-    ReportTitle = models.CharField(max_length=30)
-    Description = models.CharField(max_length=200)
-    Steps = models.TextField()
-    TesterID = models.CharField(max_length=30)
-    Email = models.EmailField(blank=True, null=True)
+    ProductID = models.CharField(max_length=30, help_text="Unique identifier for the product associated.")
+    Version = models.CharField(max_length=30, help_text="The version of the product the report is applicable to.")
+    ReportTitle = models.CharField(max_length=30, help_text="A brief title for the defect report.")
+    Description = models.CharField(max_length=200, help_text="A detailed description of the defect.")
+    Steps = models.TextField(help_text="The steps to reproduce the defect.")
+    TesterID = models.CharField(max_length=30, help_text="The ID of the tester who submitted the report.")
+    Email = models.EmailField(blank=True, null=True, help_text="Contact email for the tester, optional.")
     Status = models.CharField(max_length=20, choices=StatusC, default="New", help_text="Current status of the defect report.")
-    Severity = models.CharField(max_length=20, choices=SeverityC, blank=True, null=True)
-    Priority = models.CharField(max_length=20, choices=PriorityC, blank=True, null=True)
+    Severity = models.CharField(max_length=20, choices=SeverityC, blank=True, null=True, help_text="The severity level of the defect.")
+    Priority = models.CharField(max_length=20, choices=PriorityC, blank=True, null=True, help_text="The priority level of the defect.")
     CreatedTime = models.DateTimeField(auto_now_add=True)
     UpdatedTime = models.DateTimeField(auto_now=True)
     assigned_to = models.ForeignKey(
