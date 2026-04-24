@@ -26,7 +26,13 @@
         <td>{{ d.Severity }}</td>
         <td>{{ d.Priority }}</td>
         <td>{{ d.Status }}</td>
-        <td>{% if d.assigned_to %}{{ d.assigned_to.username }}{% else %}-{% endif %}</td>
+        <td>
+          {% if d.assigned_to %}
+            <a href="/defects/reports/developer-profile/{{ d.assigned_to.id }}/">{{ d.assigned_to.username }}</a>
+          {% else %}
+            -
+          {% endif %}
+        </td>
         <td>{{ d.CreatedTime|date:"Y-m-d H:i" }}</td>
       </tr>
       {% empty %}
