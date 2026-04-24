@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="max-width: 700px; margin: 28px auto; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;">
+  <h2 style="margin-top: 0;">Developer Profile</h2>
+
+  <div style="display: flex; align-items: center; gap: 18px; border: 1px solid #e4e7eb; border-radius: 10px; padding: 18px; background: #fff;">
+    <img
+      src="{{ developer.profile_picture_url }}"
+      alt="{{ developer.username }} profile picture"
+      width="110"
+      height="110"
+      style="border-radius: 55px; border: 1px solid #d7dce2; object-fit: cover;"
+    />
+
+    <div>
+      <p style="margin: 4px 0;"><strong>Name:</strong> {{ developer.username }}</p>
+      <p style="margin: 4px 0;"><strong>Account Creation Date:</strong> {{ developer.account_created_at|date:"Y-m-d H:i" }}</p>
+      <p style="margin: 4px 0;"><strong>Developer Rating:</strong> {{ developer.effectiveness }}</p>
+      <p style="margin: 4px 0;"><strong>Reopened/Fixed Ratio:</strong> {% if developer.ratio is not None %}{{ developer.ratio }}{% else %}N/A{% endif %}</p>
+    </div>
+  </div>
+
+  <p style="margin-top: 16px;">
+    <a href="/defects/reports/developers/" style="text-decoration: none; color: #007bff;">Back to Developer Ratings</a>
+  </p>
+</div>
+{% endblock %}

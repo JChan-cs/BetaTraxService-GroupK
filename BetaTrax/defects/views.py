@@ -1,12 +1,14 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.db.models import Q
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.decorators import action
 from rest_framework.renderers import BrowsableAPIRenderer, TemplateHTMLRenderer, JSONRenderer
+from urllib.parse import quote_plus
 
 from comments.models import Comment
 
@@ -158,6 +160,7 @@ class DefectReportViewSet(
                 links = [
                     {'name': 'New Reports (Pending Evaluation)', 'url': '/defects/reports/new', 'method': 'GET'},
                     {'name': 'Open Defects (Ready to Assign)', 'url': '/defects/reports/open', 'method': 'GET'},
+                    {'name': 'Developer Ratings', 'url': '/defects/reports/developers/', 'method': 'GET'},
                     {'name': 'All Reports', 'url': '/defects/reports/', 'method': 'GET'},
                     {'name': 'Open Fixed Defects', 'url': '/resolved/', 'method': 'GET'},
                     {'name': 'Add New Product', 'url': '/product_reg/dashboard/', 'method': 'GET'}
@@ -377,7 +380,6 @@ class DefectReportViewSet(
     @action(detail=False, methods=['get'], url_path='developer-metrics/(?P<user_id>[0-9]+)', permission_classes=[IsAuthenticated])
     def developer_metrics(self, request, user_id=None):
         """Return effectiveness rating for a developer."""
-        from django.contrib.auth.models import User
         from .models import DeveloperMetrics
 
         try:
@@ -389,3 +391,58 @@ class DefectReportViewSet(
         fixed = metrics.defects_fixed
         reopened = metrics.defects_reopened
         return Response(build_metrics_response(user, fixed, reopened))
+
+    @action(detail=False, methods=['get'], url_path='developers', permission_classes=[IsAuthenticated])
+    def developers(self, request):
+        """List developer ratings with links to individual profiles (Product Owner only)."""
+        if not request.user.groups.filter(name='ProductOwner').exists():
+            return Response(
+                {"detail": "Only Product Owners can view developer ratings."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        developers = User.objects.filter(groups__name='Developer').distinct().order_by('username')
+        rows = []
+        for developer in developers:
+            payload = build_metrics_response(
+                user=developer,
+                defects_fixed=getattr(developer, 'developer_metrics', None).defects_fixed if hasattr(developer, 'developer_metrics') else 0,
+                defects_reopened=getattr(developer, 'developer_metrics', None).defects_reopened if hasattr(developer, 'developer_metrics') else 0,
+            )
+            payload['profile_url'] = f"/defects/reports/developer-profile/{developer.id}/"
+            rows.append(payload)
+
+        if request.accepted_renderer.format == 'html':
+            return render(request, 'defects/developer_metrics_list.html', {'developers': rows})
+
+        return Response(rows)
+
+    @action(detail=False, methods=['get'], url_path='developer-profile/(?P<user_id>[0-9]+)', permission_classes=[IsAuthenticated])
+    def developer_profile(self, request, user_id=None):
+        """Show a developer profile with rating details (Product Owner only)."""
+        if not request.user.groups.filter(name='ProductOwner').exists():
+            return Response(
+                {"detail": "Only Product Owners can view developer profiles."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        developer = get_object_or_404(User, pk=user_id)
+        if not developer.groups.filter(name='Developer').exists():
+            return Response(
+                {"detail": "Requested user is not a developer."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        metrics = getattr(developer, 'developer_metrics', None)
+        defects_fixed = metrics.defects_fixed if metrics else 0
+        defects_reopened = metrics.defects_reopened if metrics else 0
+        payload = build_metrics_response(developer, defects_fixed, defects_reopened)
+        payload['account_created_at'] = developer.date_joined
+        payload['profile_picture_url'] = (
+            f"https://ui-avatars.com/api/?name={quote_plus(developer.username)}&background=0B7285&color=FFFFFF&size=256"
+        )
+
+        if request.accepted_renderer.format == 'html':
+            return render(request, 'defects/developer_profile.html', {'developer': payload})
+
+        return Response(payload)
