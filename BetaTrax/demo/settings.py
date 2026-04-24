@@ -97,7 +97,17 @@ SPECTACULAR_SETTINGS = {
     'DESCRIPTION': 'API documentation for BetaTrax',
     'VERSION': '0.1.0',
     'SERVE_INCLUDE_SCHEMA': False,
+
+    'TAGS': [
+        {'name': 'assigned', 'description': 'Endpoints related to assigned defects'},
+        {'name': 'comments', 'description': 'Endpoints related to comments'},
+        {'name': 'defects', 'description': 'Endpoints related to defect reports'},
+        {'name': 'product_reg', 'description': 'Endpoints related to product registration'},
+        {'name': 'resolved', 'description': 'Endpoints related to resolved defects'},
+    ]
 }
+
+
 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases

@@ -7,7 +7,8 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from defects.models import DefectReport
 from defects.serializers import DefectReportStatusSerializer
-
+from drf_spectacular.utils import extend_schema, OpenApiParameter
+from drf_spectacular.types import OpenApiTypes
 
 @login_required
 def assigned_defects_list(request):
@@ -24,10 +25,23 @@ def new_defects_list(request):
     ).order_by('-CreatedTime')
     return render(request, "assigned/new_defects.html", {"defects": defects})
 
-
+@extend_schema(
+    request=DefectReportStatusSerializer,
+    responses={200: DefectReportStatusSerializer, 400: "Bad Request"},
+    parameters=[
+        OpenApiParameter(
+            name='id',
+            description='Primary key of the defect report to update',
+            required=True,
+            type=OpenApiTypes.INT,
+            location=OpenApiParameter.PATH
+        )
+    ],
+)
 @api_view(["PATCH"])
 @permission_classes([IsAuthenticated])
 def change_defect_status(request, pk):
+    """Update the status of an assigned defect report."""
     defect = get_object_or_404(DefectReport, pk=pk)
 
     serializer = DefectReportStatusSerializer(defect, data=request.data, context={"request": request}, partial=True)
