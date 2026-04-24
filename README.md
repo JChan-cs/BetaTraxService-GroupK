@@ -21,7 +21,7 @@ no longer possible to keep an adequate history of defect resolution and decision
 service has thus been developed to solve these problems.  It will be used for all the company’s products and, in the 
 future, may be rolled out as a product itself, for adoption by other software development companies. 
 
-Service Structure:
+Services Flow:
 
 1. **Dashboard:** Top navigation bar with role‑based links.
 2. **Product Registration:** Tab that allows Product Owners to add new Products.
@@ -33,6 +33,10 @@ Service Structure:
 8. **Tester Retest View:** Area to allow Tester to comment on defect after a Developer modified the code.
 9. **Product Owner Confirm View:** Area to allow Product Owner to marks defect as solved or reopen if failed.
 10. **Comment Section:** Section that display progress on all defects. Product Owners and Developer can click on individual comments to enact Evaluation/Assignment/Vertification.
+
+Other Functionalities:
+* **Developer Metrics Test:** Betatrax measures effectiveness of Developers in terms of the ratio of their defects reopened vs. defects they have reported as fixed.  This will give a rough indication of whether a Developer is fixing defects successfully.
+* **Multi-tenancy:** Betatrax uses PostgreSQL, which allows separate tenants and schemas in order to offer better security.
 
 ## Assumptions
 BetaTesters submit defect report through external API, currently coded as a submit view
@@ -78,16 +82,18 @@ BetaTesters submit defect report through external API, currently coded as a subm
 
 <!-- markdownlint-enable MD033-->
 
-## Contributions (Sprint 2)
+## Contributions (Sprint 3)
 
-* Product Backlog : Tam Ho Chun, Chan Hin Chun Jensen
-* Sprint Backlog: Chan Hin Chun Jensen
-* Partial Domain Model : Lam Cheung Lam Nicholas, Ho Kin Sang
-* Making html UIs: Ho Kin Sang
-* Product Registration By Product Owner: Wong King Wang
-* Reopen Functionality: Lam Cheung Lam Nicholas
+* Product Backlog : Chan Hin Chun Jensen
+* User Stories : Tam Ho Chun
+* Sprint Backlog : Chan Hin Chun Jensen
+* API Documentation : Lam Cheung Lam Nicholas
+* Automated Testing Code: Tam Ho Chun, Wong King Wang
+* Developer Metrics Code : Wong King Wang
+* Multi-tenancy Extension Code: Chan Hin Chun Jensen, Ho Kin Sang 
 * README: Chan Hin Chun Jensen
-* Fixing and Improving Sprint 1 Code: All
+* Definitive Document Set : Lam Cheung Lam Nicholas
+* Fixing and Improving Sprint 2 Code: All
 
 ---
 
