@@ -9,6 +9,7 @@ from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnl
 from rest_framework.decorators import action
 from rest_framework.renderers import BrowsableAPIRenderer, TemplateHTMLRenderer, JSONRenderer
 from urllib.parse import quote_plus
+from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter, OpenApiResponse, inline_serializer
 
 from comments.models import Comment
 
@@ -19,7 +20,39 @@ from .product_owner_retest_views import ProductOwnerRetestViewsMixin
 from .developer_views import DeveloperViewsMixin
 from .developer_metrics import build_metrics_response
 
-
+@extend_schema_view(
+    update=extend_schema(
+        summary="Update defect report", 
+        description="Fully update an existing defect report.",
+        request=DefectReportSerializer,
+        responses={
+            200: OpenApiResponse(response=DefectReportSerializer, description="Defect report fully updated successfully"),
+            400: OpenApiResponse(description="Invalid input data"),
+            403: OpenApiResponse(description="Permission denied"),
+            404: OpenApiResponse(description="Defect report not found")
+        }
+    ),
+    partial_update=extend_schema(
+        summary="Partially update defect report",
+        description="Partially update an existing defect report.",
+        request=DefectReportSerializer,
+        responses={
+            200: OpenApiResponse(response=DefectReportSerializer, description="Defect report partially updated successfully"),
+            400: OpenApiResponse(description="Invalid input data"),
+            403: OpenApiResponse(description="Permission denied"),
+            404: OpenApiResponse(description="Defect report not found")
+        }
+    ),
+    destroy=extend_schema(
+        summary="Delete defect report",
+        description="Delete an existing defect report.",
+        responses={
+            204: OpenApiResponse(description="Defect report deleted successfully"),
+            403: OpenApiResponse(description="Permission denied"),
+            404: OpenApiResponse(description="Defect report not found")
+        }
+    )
+)
 class DefectReportViewSet(
     ProductOwnerConfirmViewsMixin,
     ProductOwnerRetestViewsMixin,
@@ -39,6 +72,15 @@ class DefectReportViewSet(
             queryset = queryset.filter(Status = TargetedStatus)
         return queryset
 
+    @extend_schema(
+        summary="List defect reports",
+        responses={
+            200: OpenApiResponse(
+                response=DefectReportSerializer(many=True),
+                description="List of defect reports retrieved successfully"
+            )
+        }
+    )
     def list(self, request, *args, **kwargs):
         """Override list to render an HTML template when HTML is requested.
 
@@ -55,6 +97,13 @@ class DefectReportViewSet(
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
+    @extend_schema(
+        summary="Retrieve defect report",
+        responses={
+            200: OpenApiResponse(response=DefectReportSerializer, description="Defect report retrieved successfully"),
+            404: OpenApiResponse(description="Defect report not found")
+        }
+    )
     def retrieve(self, request, pk=None):
         """Render an HTML detail page when HTML is requested, otherwise return JSON."""
         defect = self.get_object()
@@ -71,6 +120,16 @@ class DefectReportViewSet(
         serializer = self.get_serializer(defect)
         return Response(serializer.data)
 
+    @extend_schema(
+        summary="Create defect report",
+        description="Create a new defect report.",
+        request=DefectReportSerializer,
+        responses={
+            201: OpenApiResponse(response=DefectReportSerializer, description="Defect report created successfully"),
+            400: OpenApiResponse(description="Invalid input data"),
+            403: OpenApiResponse(description="Permission denied")
+        }
+    )
     def create(self, request, *args, **kwargs):
         data = request.data.copy()
         
@@ -80,8 +139,15 @@ class DefectReportViewSet(
         self.perform_create(serializers)
         return Response(serializers.data, status = status.HTTP_201_CREATED)
 
+    @extend_schema(
+        summary="Submit new defect report",
+        description="Create a new defect report with initial status set to New.",
+        request=DefectReportSerializer,
+        methods=["POST"]
+    )
     @action(detail=False, methods=['get', 'post'], url_path='submit')
     def submit_defect(self, request):
+        """Create a new defect report with initial status set to New."""
         if request.method == 'POST':
             # if not request.user.groups.filter(name='BetaTester').exists():
             #     error_msg = "Only Testers can submit new defect reports."
@@ -111,6 +177,10 @@ class DefectReportViewSet(
             return render(request, 'defects/submit_defect.html', {'errors': serializer.errors})
         return render(request, 'defects/submit_defect.html')
 
+    @extend_schema(
+        summary="Change defect status",
+        request=DefectReportStatusSerializer
+    )
     @action(
         detail=True,
         methods=["patch"],
@@ -119,6 +189,7 @@ class DefectReportViewSet(
         renderer_classes=[JSONRenderer, BrowsableAPIRenderer],
     )
     def change_status(self, request, pk=None):
+        """Update the status of a defect report using allowed workflow transitions."""
         defect = self.get_object()
         
         if "Status" not in request.data:
@@ -149,8 +220,10 @@ class DefectReportViewSet(
             status=status.HTTP_200_OK,
         )
 
+    @extend_schema(summary="Get role-based dashboard")
     @action(detail=False, methods=['get'], url_path='dashboard')
     def dashboard(self, request):
+        """Return dashboard links and role-specific navigation options for current user."""
         user = request.user
         links = []
         role = "Anonymous"
@@ -186,9 +259,11 @@ class DefectReportViewSet(
             return render(request, 'defects/dashboard.html', context)
 
         return Response({'username': user.username if user.is_authenticated else 'Not logged in','role': role,'links': links,})
-  
+    
+    @extend_schema(summary="Accept new defect report")
     @action(detail=True, methods=['patch'], url_path='accept', permission_classes=[IsAuthenticated])
     def accept(self, request, pk=None):
+        """Product Owner accepts a New report and sets Severity and Priority"""
         defect = self.get_object()
         
         if not request.user.groups.filter(name='ProductOwner').exists():
@@ -226,6 +301,11 @@ class DefectReportViewSet(
             status=status.HTTP_200_OK
         )
 
+    @extend_schema(
+        summary="Submit defect evaluation",
+        description="Apply Product Owner decision to accept, reject, or mark a defect report as duplicate.",
+        methods=["post"],
+        request=DefectEvaluationSerializer,)
     @action(detail=True, methods=["get", "post"], url_path="evaluate", permission_classes=[IsAuthenticatedOrReadOnly])
     def evaluate(self, request, pk=None):
         defect = self.get_object()
@@ -280,8 +360,10 @@ class DefectReportViewSet(
         context = {'defect': defect}
         return render(request, 'defects/evaluation_success.html', context)
 
+    @extend_schema(summary="List open defects")
     @action(detail=False, methods=['get'], url_path='open', renderer_classes=[TemplateHTMLRenderer, JSONRenderer, BrowsableAPIRenderer])
     def open_defects(self, request):
+        """Return defects currently available for developer pickup."""
         # Show both Open and Reopened defects
         defects = DefectReport.objects.filter(Q(Status='Open') | Q(Status='Reopened')).order_by('CreatedTime')
         if request.accepted_renderer.format == 'json':
@@ -289,8 +371,10 @@ class DefectReportViewSet(
             return Response(serializer.data) # Returns clean JSON
         return render(request, 'defects/open_defects.html', {'defects': defects})
 
+    @extend_schema(summary="Assign defect to current developer")
     @action(detail=True, methods=['post'], url_path='take', permission_classes=[IsAuthenticated], renderer_classes=[TemplateHTMLRenderer, JSONRenderer, BrowsableAPIRenderer])
     def take(self, request, pk=None):
+        """Assign an Open or Reopened defect to the authenticated developer."""
         defect = self.get_object()
         is_not_open = defect.Status not in ['Open', 'Reopened']
         is_not_developer = not request.user.groups.filter(name='Developer').exists()
@@ -318,9 +402,10 @@ class DefectReportViewSet(
         messages.success(request, "Success! Defect assigned.")
         return render(request, 'defects/take_success.html', {'defect': defect})
     
+    @extend_schema(summary="List new defects")
     @action(detail=False, methods=['get'], url_path='new', permission_classes=[IsAuthenticated])
     def new_defects(self, request):
-        """API endpoint for Product Owner: list all defects with Status='New'."""
+        """Return defects currently in New status for Product Owner triage."""
         defects = self.get_queryset().filter(Status='New')
         # If HTML is requested, render a template for browser clients.
         if request.accepted_renderer.format == 'html':
@@ -328,15 +413,18 @@ class DefectReportViewSet(
         serializer = self.get_serializer(defects, many=True)
         return Response(serializer.data)
 
+    @extend_schema(summary="List my assigned defects")
     @action(detail=False, methods=['get'], url_path='my-assigned', permission_classes=[IsAuthenticated])
     def my_assigned_defects(self, request):
-        """API endpoint for Developer: list defects assigned to current user with Status='Assigned'."""
+        """Return defects assigned to the current user in Assigned status."""
         defects = self.get_queryset().filter(assigned_to=request.user, Status='Assigned')
         serializer = self.get_serializer(defects, many=True)
         return Response(serializer.data)
     
+    @extend_schema(summary="List developer task queue")
     @action(detail=False, methods=['get'], url_path='my-tasks', permission_classes=[IsAuthenticated])
     def my_tasks(self, request):
+        """Return tasks assigned to the current developer account."""
         if not request.user.groups.filter(name='Developer').exists():
             return Response(
                 {'error': 'Only developers can access this endpoint'},
@@ -377,6 +465,7 @@ class DefectReportViewSet(
             serializer.save()
             return redirect("assigned_defects")
         return render(request, 'defects/mark_fixed.html', context={"defect": defect})
+    @extend_schema(summary="Get developer metrics")
     @action(detail=False, methods=['get'], url_path='developer-metrics/(?P<user_id>[0-9]+)', permission_classes=[IsAuthenticated])
     def developer_metrics(self, request, user_id=None):
         """Return effectiveness rating for a developer."""
@@ -392,6 +481,7 @@ class DefectReportViewSet(
         reopened = metrics.defects_reopened
         return Response(build_metrics_response(user, fixed, reopened))
 
+    @extend_schema(summary="List developer ratings")
     @action(detail=False, methods=['get'], url_path='developers', permission_classes=[IsAuthenticated])
     def developers(self, request):
         """List developer ratings with links to individual profiles (Product Owner only)."""
@@ -417,6 +507,7 @@ class DefectReportViewSet(
 
         return Response(rows)
 
+    @extend_schema(summary="Get developer profile")
     @action(detail=False, methods=['get'], url_path='developer-profile/(?P<user_id>[0-9]+)', permission_classes=[IsAuthenticated])
     def developer_profile(self, request, user_id=None):
         """Show a developer profile with rating details (Product Owner only)."""

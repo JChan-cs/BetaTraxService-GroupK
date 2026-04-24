@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework.renderers import TemplateHTMLRenderer, JSONRenderer, BrowsableAPIRenderer
+from drf_spectacular.utils import extend_schema
 from django.shortcuts import render, redirect
 from django.contrib import messages
 
@@ -57,6 +58,7 @@ class DeveloperViewsMixin:
         
         return Response(serializer.data)
 
+    @extend_schema(summary="Assign defect to current developer")
     @action(detail=True, methods=['patch'], url_path='assign', permission_classes=[IsAuthenticated])
     def assign_to_me(self, request, pk=None):
         """Developer claims/takes a defect to work on"""
@@ -98,6 +100,7 @@ class DeveloperViewsMixin:
         messages.success(request, success_msg)
         return redirect('defectreport-detail', pk=defect.pk)
 
+    @extend_schema(summary="Submit defect fix", methods=['POST'])
     @action(detail=True, methods=['get', 'post'], url_path='fix', permission_classes=[IsAuthenticated])
     def fix_defect(self, request, pk=None):
         """Developer view for fixing an assigned defect"""

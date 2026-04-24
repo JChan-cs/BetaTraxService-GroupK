@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.decorators import action
 from rest_framework.renderers import TemplateHTMLRenderer, JSONRenderer, BrowsableAPIRenderer
+from drf_spectacular.utils import extend_schema
 from django.shortcuts import render, redirect
 from django.contrib import messages
 
@@ -17,6 +18,7 @@ from comments.models import Comment
 class ProductOwnerRetestViewsMixin:
     """Mixin providing Product Owner Retest-specific actions for retesting fixed defects"""
 
+    @extend_schema(summary="Submit defect retest outcome", methods=["POST"])
     @action(
         detail=True,
         methods=["get", "post"],
