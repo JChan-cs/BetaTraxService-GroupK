@@ -1,0 +1,1811 @@
+openapi: 3.0.3
+info:
+  title: BetaTrax API
+  version: 0.1.0
+  description: API documentation for BetaTrax
+paths:
+  /assigned/{id}/status/:
+    patch:
+      operationId: assigned_status_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - assigned
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          description: No response body
+  /comments/api/comments/:
+    get:
+      operationId: comments_api_comments_list
+      tags:
+      - comments
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Comment'
+          description: ''
+    post:
+      operationId: comments_api_comments_create
+      tags:
+      - comments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Comment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Comment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Comment'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+          description: ''
+  /comments/api/comments/{id}/:
+    get:
+      operationId: comments_api_comments_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this comment.
+        required: true
+      tags:
+      - comments
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+          description: ''
+    put:
+      operationId: comments_api_comments_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this comment.
+        required: true
+      tags:
+      - comments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Comment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Comment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Comment'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+          description: ''
+    patch:
+      operationId: comments_api_comments_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this comment.
+        required: true
+      tags:
+      - comments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedComment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedComment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedComment'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+          description: ''
+    delete:
+      operationId: comments_api_comments_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this comment.
+        required: true
+      tags:
+      - comments
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '204':
+          description: No response body
+  /defects/reports/:
+    get:
+      operationId: defects_reports_list
+      description: |-
+        Override list to render an HTML template when HTML is requested.
+
+        - If the client accepts HTML, render 'defects/reports.html' with the defects queryset.
+        - Otherwise, return the normal JSON serialized response.
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - html
+          - json
+      tags:
+      - defects
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DefectReport'
+            text/html:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DefectReport'
+          description: ''
+    post:
+      operationId: defects_reports_create
+      description: Mixin providing Product Owner Confirm-specific actions for initial
+        defect evaluation
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - html
+          - json
+      tags:
+      - defects
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DefectReport'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DefectReport'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DefectReport'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefectReport'
+            text/html:
+              schema:
+                $ref: '#/components/schemas/DefectReport'
+          description: ''
+  /defects/reports/{id}/:
+    get:
+      operationId: defects_reports_retrieve
+      description: Render an HTML detail page when HTML is requested, otherwise return
+        JSON.
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - html
+          - json
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this defect report.
+        required: true
+      tags:
+      - defects
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefectReport'
+            text/html:
+              schema:
+                $ref: '#/components/schemas/DefectReport'
+          description: ''
+    put:
+      operationId: defects_reports_update
+      description: Mixin providing Product Owner Confirm-specific actions for initial
+        defect evaluation
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - html
+          - json
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this defect report.
+        required: true
+      tags:
+      - defects
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DefectReport'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DefectReport'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DefectReport'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefectReport'
+            text/html:
+              schema:
+                $ref: '#/components/schemas/DefectReport'
+          description: ''
+    patch:
+      operationId: defects_reports_partial_update
+      description: Mixin providing Product Owner Confirm-specific actions for initial
+        defect evaluation
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - html
+          - json
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this defect report.
+        required: true
+      tags:
+      - defects
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedDefectReport'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedDefectReport'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedDefectReport'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefectReport'
+            text/html:
+              schema:
+                $ref: '#/components/schemas/DefectReport'
+          description: ''
+    delete:
+      operationId: defects_reports_destroy
+      description: Mixin providing Product Owner Confirm-specific actions for initial
+        defect evaluation
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - html
+          - json
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this defect report.
+        required: true
+      tags:
+      - defects
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /defects/reports/{id}/accept/:
+    patch:
+      operationId: defects_reports_accept_partial_update
+      description: Product Owner accepts a new defect report and sets severity/priority
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - html
+          - json
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this defect report.
+        required: true
+      tags:
+      - defects
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedDefectReport'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedDefectReport'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedDefectReport'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefectReport'
+            text/html:
+              schema:
+                $ref: '#/components/schemas/DefectReport'
+          description: ''
+  /defects/reports/{id}/assign/:
+    patch:
+      operationId: defects_reports_assign_partial_update
+      description: Developer claims/takes a defect to work on
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - html
+          - json
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this defect report.
+        required: true
+      tags:
+      - defects
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedDefectReport'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedDefectReport'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedDefectReport'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefectReport'
+            text/html:
+              schema:
+                $ref: '#/components/schemas/DefectReport'
+          description: ''
+  /defects/reports/{id}/evaluate/:
+    get:
+      operationId: defects_reports_evaluate_retrieve
+      description: Product Owner evaluates a new defect report (accept/reject/mark
+        duplicate)
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - html
+          - json
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this defect report.
+        required: true
+      tags:
+      - defects
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefectReport'
+            text/html:
+              schema:
+                $ref: '#/components/schemas/DefectReport'
+          description: ''
+    post:
+      operationId: defects_reports_evaluate_create
+      description: Product Owner evaluates a new defect report (accept/reject/mark
+        duplicate)
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - html
+          - json
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this defect report.
+        required: true
+      tags:
+      - defects
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DefectReport'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DefectReport'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DefectReport'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefectReport'
+            text/html:
+              schema:
+                $ref: '#/components/schemas/DefectReport'
+          description: ''
+  /defects/reports/{id}/evaluate-success/:
+    get:
+      operationId: defects_reports_evaluate_success_retrieve
+      description: Success page after evaluation
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this defect report.
+        required: true
+      tags:
+      - defects
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            text/html:
+              schema:
+                $ref: '#/components/schemas/DefectReport'
+          description: ''
+  /defects/reports/{id}/fix/:
+    get:
+      operationId: defects_reports_fix_retrieve
+      description: Developer view for fixing an assigned defect
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - html
+          - json
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this defect report.
+        required: true
+      tags:
+      - defects
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefectReport'
+            text/html:
+              schema:
+                $ref: '#/components/schemas/DefectReport'
+          description: ''
+    post:
+      operationId: defects_reports_fix_create
+      description: Developer view for fixing an assigned defect
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - html
+          - json
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this defect report.
+        required: true
+      tags:
+      - defects
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DefectReport'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DefectReport'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DefectReport'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefectReport'
+            text/html:
+              schema:
+                $ref: '#/components/schemas/DefectReport'
+          description: ''
+  /defects/reports/{id}/fix-success/:
+    get:
+      operationId: defects_reports_fix_success_retrieve
+      description: Success page after submitting fix
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this defect report.
+        required: true
+      tags:
+      - defects
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            text/html:
+              schema:
+                $ref: '#/components/schemas/DefectReport'
+          description: ''
+  /defects/reports/{id}/mark_fixed/:
+    get:
+      operationId: defects_reports_mark_fixed_retrieve
+      description: Mixin providing Product Owner Confirm-specific actions for initial
+        defect evaluation
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - html
+          - json
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this defect report.
+        required: true
+      tags:
+      - defects
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefectReport'
+            text/html:
+              schema:
+                $ref: '#/components/schemas/DefectReport'
+          description: ''
+    post:
+      operationId: defects_reports_mark_fixed_create
+      description: Mixin providing Product Owner Confirm-specific actions for initial
+        defect evaluation
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - html
+          - json
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this defect report.
+        required: true
+      tags:
+      - defects
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DefectReport'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DefectReport'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DefectReport'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefectReport'
+            text/html:
+              schema:
+                $ref: '#/components/schemas/DefectReport'
+          description: ''
+  /defects/reports/{id}/retest/:
+    get:
+      operationId: defects_reports_retest_retrieve
+      description: Product Owner retests a defect that has been fixed by a developer
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - html
+          - json
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this defect report.
+        required: true
+      tags:
+      - defects
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            text/html:
+              schema:
+                $ref: '#/components/schemas/DefectReport'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefectReport'
+          description: ''
+    post:
+      operationId: defects_reports_retest_create
+      description: Product Owner retests a defect that has been fixed by a developer
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - html
+          - json
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this defect report.
+        required: true
+      tags:
+      - defects
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DefectReport'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DefectReport'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DefectReport'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            text/html:
+              schema:
+                $ref: '#/components/schemas/DefectReport'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefectReport'
+          description: ''
+  /defects/reports/{id}/retest-success/:
+    get:
+      operationId: defects_reports_retest_success_retrieve
+      description: Success page after retest confirmation
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this defect report.
+        required: true
+      tags:
+      - defects
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            text/html:
+              schema:
+                $ref: '#/components/schemas/DefectReport'
+          description: ''
+  /defects/reports/{id}/status/:
+    patch:
+      operationId: defects_reports_status_partial_update
+      description: Update defect status (for operational status changes)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this defect report.
+        required: true
+      tags:
+      - defects
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedDefectReport'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedDefectReport'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedDefectReport'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefectReport'
+          description: ''
+  /defects/reports/{id}/take/:
+    post:
+      operationId: defects_reports_take_create
+      description: Mixin providing Product Owner Confirm-specific actions for initial
+        defect evaluation
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - html
+          - json
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this defect report.
+        required: true
+      tags:
+      - defects
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DefectReport'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DefectReport'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DefectReport'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            text/html:
+              schema:
+                $ref: '#/components/schemas/DefectReport'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefectReport'
+          description: ''
+  /defects/reports/dashboard/:
+    get:
+      operationId: defects_reports_dashboard_retrieve
+      description: Mixin providing Product Owner Confirm-specific actions for initial
+        defect evaluation
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - html
+          - json
+      tags:
+      - defects
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefectReport'
+            text/html:
+              schema:
+                $ref: '#/components/schemas/DefectReport'
+          description: ''
+  /defects/reports/developer-metrics/{user_id}/:
+    get:
+      operationId: defects_reports_developer_metrics_retrieve
+      description: Return effectiveness rating for a developer.
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - html
+          - json
+      - in: path
+        name: user_id
+        schema:
+          type: string
+          pattern: ^[0-9]+$
+        required: true
+      tags:
+      - defects
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefectReport'
+            text/html:
+              schema:
+                $ref: '#/components/schemas/DefectReport'
+          description: ''
+  /defects/reports/my-assigned/:
+    get:
+      operationId: defects_reports_my_assigned_retrieve
+      description: 'API endpoint for Developer: list defects assigned to current user
+        with Status=''Assigned''.'
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - html
+          - json
+      tags:
+      - defects
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefectReport'
+            text/html:
+              schema:
+                $ref: '#/components/schemas/DefectReport'
+          description: ''
+  /defects/reports/my-tasks/:
+    get:
+      operationId: defects_reports_my_tasks_retrieve
+      description: List all defects assigned to the current developer
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - html
+          - json
+      tags:
+      - defects
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefectReport'
+            text/html:
+              schema:
+                $ref: '#/components/schemas/DefectReport'
+          description: ''
+  /defects/reports/new/:
+    get:
+      operationId: defects_reports_new_retrieve
+      description: 'API endpoint for Product Owner: list all defects with Status=''New''.'
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - html
+          - json
+      tags:
+      - defects
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefectReport'
+            text/html:
+              schema:
+                $ref: '#/components/schemas/DefectReport'
+          description: ''
+  /defects/reports/open/:
+    get:
+      operationId: defects_reports_open_retrieve
+      description: List all 'Open' defects available for developers to pick up
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - html
+          - json
+      tags:
+      - defects
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            text/html:
+              schema:
+                $ref: '#/components/schemas/DefectReport'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefectReport'
+          description: ''
+  /defects/reports/submit/:
+    get:
+      operationId: defects_reports_submit_retrieve
+      description: Mixin providing Product Owner Confirm-specific actions for initial
+        defect evaluation
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - html
+          - json
+      tags:
+      - defects
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefectReport'
+            text/html:
+              schema:
+                $ref: '#/components/schemas/DefectReport'
+          description: ''
+    post:
+      operationId: defects_reports_submit_create
+      description: Mixin providing Product Owner Confirm-specific actions for initial
+        defect evaluation
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - html
+          - json
+      tags:
+      - defects
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DefectReport'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DefectReport'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DefectReport'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefectReport'
+            text/html:
+              schema:
+                $ref: '#/components/schemas/DefectReport'
+          description: ''
+  /product_reg/products/:
+    get:
+      operationId: product_reg_products_list
+      tags:
+      - product_reg
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+          description: ''
+    post:
+      operationId: product_reg_products_create
+      tags:
+      - product_reg
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Product'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Product'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+  /product_reg/products/{id}/:
+    get:
+      operationId: product_reg_products_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this product.
+        required: true
+      tags:
+      - product_reg
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+    put:
+      operationId: product_reg_products_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this product.
+        required: true
+      tags:
+      - product_reg
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Product'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Product'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+    patch:
+      operationId: product_reg_products_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this product.
+        required: true
+      tags:
+      - product_reg
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedProduct'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedProduct'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedProduct'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+    delete:
+      operationId: product_reg_products_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this product.
+        required: true
+      tags:
+      - product_reg
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '204':
+          description: No response body
+  /resolved/api/result/:
+    get:
+      operationId: resolved_api_result_list
+      tags:
+      - resolved
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Resolving'
+          description: ''
+    post:
+      operationId: resolved_api_result_create
+      tags:
+      - resolved
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Resolving'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Resolving'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Resolving'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resolving'
+          description: ''
+  /resolved/api/result/{id}/:
+    get:
+      operationId: resolved_api_result_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this result.
+        required: true
+      tags:
+      - resolved
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resolving'
+          description: ''
+    put:
+      operationId: resolved_api_result_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this result.
+        required: true
+      tags:
+      - resolved
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Resolving'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Resolving'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Resolving'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resolving'
+          description: ''
+    patch:
+      operationId: resolved_api_result_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this result.
+        required: true
+      tags:
+      - resolved
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedResolving'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedResolving'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedResolving'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resolving'
+          description: ''
+    delete:
+      operationId: resolved_api_result_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this result.
+        required: true
+      tags:
+      - resolved
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '204':
+          description: No response body
+components:
+  schemas:
+    BlankEnum:
+      enum:
+      - ''
+    Comment:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        author:
+          type: string
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          readOnly: true
+        text:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - author
+      - created_at
+      - id
+      - text
+    DefectReport:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        ProductID:
+          type: string
+          maxLength: 30
+        Version:
+          type: string
+          maxLength: 30
+        ReportTitle:
+          type: string
+          maxLength: 30
+        Description:
+          type: string
+          maxLength: 200
+        Steps:
+          type: string
+        TesterID:
+          type: string
+          maxLength: 30
+        Email:
+          type: string
+          format: email
+          nullable: true
+          maxLength: 254
+        Status:
+          allOf:
+          - $ref: '#/components/schemas/StatusEnum'
+          readOnly: true
+        Severity:
+          nullable: true
+          oneOf:
+          - $ref: '#/components/schemas/SeverityEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+          - $ref: '#/components/schemas/NullEnum'
+        Priority:
+          nullable: true
+          oneOf:
+          - $ref: '#/components/schemas/PriorityEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+          - $ref: '#/components/schemas/NullEnum'
+        CreatedTime:
+          type: string
+          format: date-time
+          readOnly: true
+        UpdatedTime:
+          type: string
+          format: date-time
+          readOnly: true
+        assigned_to:
+          type: integer
+          readOnly: true
+          nullable: true
+      required:
+      - CreatedTime
+      - Description
+      - ProductID
+      - ReportTitle
+      - Status
+      - Steps
+      - TesterID
+      - UpdatedTime
+      - Version
+      - assigned_to
+      - id
+    NullEnum:
+      enum:
+      - null
+    PatchedComment:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        author:
+          type: string
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          readOnly: true
+        text:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedDefectReport:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        ProductID:
+          type: string
+          maxLength: 30
+        Version:
+          type: string
+          maxLength: 30
+        ReportTitle:
+          type: string
+          maxLength: 30
+        Description:
+          type: string
+          maxLength: 200
+        Steps:
+          type: string
+        TesterID:
+          type: string
+          maxLength: 30
+        Email:
+          type: string
+          format: email
+          nullable: true
+          maxLength: 254
+        Status:
+          allOf:
+          - $ref: '#/components/schemas/StatusEnum'
+          readOnly: true
+        Severity:
+          nullable: true
+          oneOf:
+          - $ref: '#/components/schemas/SeverityEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+          - $ref: '#/components/schemas/NullEnum'
+        Priority:
+          nullable: true
+          oneOf:
+          - $ref: '#/components/schemas/PriorityEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+          - $ref: '#/components/schemas/NullEnum'
+        CreatedTime:
+          type: string
+          format: date-time
+          readOnly: true
+        UpdatedTime:
+          type: string
+          format: date-time
+          readOnly: true
+        assigned_to:
+          type: integer
+          readOnly: true
+          nullable: true
+    PatchedProduct:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        product_id:
+          type: string
+          maxLength: 50
+        version:
+          type: string
+          maxLength: 20
+        name:
+          type: string
+          maxLength: 100
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedResolving:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        report_id:
+          type: string
+          maxLength: 100
+        date:
+          type: string
+          format: date-time
+          readOnly: true
+        retest_result:
+          type: string
+        author:
+          type: string
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          readOnly: true
+    PriorityEnum:
+      enum:
+      - Critical
+      - High
+      - Medium
+      - Low
+      type: string
+      description: |-
+        * `Critical` - Critical
+        * `High` - High
+        * `Medium` - Medium
+        * `Low` - Low
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        product_id:
+          type: string
+          maxLength: 50
+        version:
+          type: string
+          maxLength: 20
+        name:
+          type: string
+          maxLength: 100
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - name
+      - product_id
+      - version
+    Resolving:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        report_id:
+          type: string
+          maxLength: 100
+        date:
+          type: string
+          format: date-time
+          readOnly: true
+        retest_result:
+          type: string
+        author:
+          type: string
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          readOnly: true
+      required:
+      - author
+      - date
+      - id
+      - report_id
+      - retest_result
+    SeverityEnum:
+      enum:
+      - Critical
+      - Major
+      - Minor
+      - Low
+      type: string
+      description: |-
+        * `Critical` - Critical
+        * `Major` - Major
+        * `Minor` - Minor
+        * `Low` - Low
+    StatusEnum:
+      enum:
+      - New
+      - Open
+      - Rejected
+      - Duplicate
+      - Assigned
+      - Cannot reproduce
+      - Fixed
+      - Resolved
+      - Reopened
+      type: string
+      description: |-
+        * `New` - New
+        * `Open` - Open
+        * `Rejected` - Rejected
+        * `Duplicate` - Duplicate
+        * `Assigned` - Assigned
+        * `Cannot reproduce` - Cannot reproduce
+        * `Fixed` - Fixed
+        * `Resolved` - Resolved
+        * `Reopened` - Reopened
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
