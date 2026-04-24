@@ -39,7 +39,7 @@ from .serializers import CommentSerializer
     ),
     update=extend_schema(
         summary="Update comment", 
-        description="Update an existing comment. User must be the author.",
+        description="Update an existing comment.",
         request=CommentSerializer,
         responses={
             200: OpenApiResponse(response=CommentSerializer, description="Comment fully updated successfully"),
@@ -51,7 +51,7 @@ from .serializers import CommentSerializer
     ),
     partial_update=extend_schema(
         summary="Partially update comment", 
-        description="Partially update an existing comment. User must be the author.",
+        description="Partially update an existing comment.",
         request=CommentSerializer,
         responses={
             200: OpenApiResponse(response=CommentSerializer, description="Comment partially updated successfully"),
@@ -62,7 +62,7 @@ from .serializers import CommentSerializer
     ),
     destroy=extend_schema(
         summary="Delete comment", 
-        description="Delete an existing comment. User must be the author.",
+        description="Delete an existing comment.",
         responses={
             204: OpenApiResponse(description="Comment deleted successfully"),
             403: OpenApiResponse(description="Permission denied"),

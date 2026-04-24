@@ -28,7 +28,7 @@ def new_defects_list(request):
 
 @extend_schema(
     summary="Change defect status",
-    description="Update the status of a defect report. User must be the assignee.",
+    description="Update the status of a defect report.",
     request=DefectReportStatusSerializer,
     parameters=[
         OpenApiParameter(
