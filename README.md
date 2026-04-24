@@ -13,7 +13,7 @@ The service will be used by the Product Owner, Developers and Beta Testers.
 
 Beta Testing Workflow:
 
-Beta Tester submits defect report --> Product Owner accepts report --> Developer assigns defect to oneself --> 
+Product Owner registers Product --> Beta Tester submits defect report of Product --> Product Owner accepts report --> Developer assigns defect to oneself --> 
 Develop fixes defect --> Beta Tester retests defect --> Product Owner marks defect as solved 
 
 As the number of beta testers has grown, the manual handling of defect reports is becoming infeasible. In addition, it is 
@@ -21,7 +21,7 @@ no longer possible to keep an adequate history of defect resolution and decision
 service has thus been developed to solve these problems.  It will be used for all the company’s products and, in the 
 future, may be rolled out as a product itself, for adoption by other software development companies. 
 
-Services Flow:
+Main Interfaces:
 
 1. **Dashboard:** Top navigation bar with role‑based links.
 2. **Product Registration:** Tab that allows Product Owners to add new Products.
