@@ -236,12 +236,15 @@ class DefectReportViewSet(
                     {'name': 'Developer Ratings', 'url': '/defects/reports/developers/', 'method': 'GET'},
                     {'name': 'All Reports', 'url': '/defects/reports/', 'method': 'GET'},
                     {'name': 'Open Fixed Defects', 'url': '/resolved/', 'method': 'GET'},
-                    {'name': 'Add New Product', 'url': '/product_reg/dashboard/', 'method': 'GET'}
+                    {'name': 'Add New Product', 'url': '/product_reg/dashboard/', 'method': 'GET'},
+                    {'name': 'Comments', 'url': '/comments/', 'method': 'GET'}
                 ]
             elif user.groups.filter(name='Developer').exists():
                 role = 'Developer'
                 links = [{"name": "My Assigned Tasks", "url": "/defects/reports/?Status=Assigned", "method": "GET"},
-                         {"name": "Open Defects (Available)", 'url': '/defects/reports/open', "method": 'GET'},]
+                         {"name": "Open Defects (Available)", 'url': '/defects/reports/open', "method": 'GET'},
+                         {'name': 'Comments', 'url': '/comments/', 'method': 'GET'}
+                        ]
             else:
                 role = 'Authenticated User (No Role)'
                 links = [{"name": "View All Reports", 'url': '/defects/reports/', 'method': 'GET'},]
