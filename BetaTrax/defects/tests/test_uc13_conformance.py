@@ -5,13 +5,22 @@ from django.contrib.auth.models import Group
 from rest_framework import status
 from rest_framework.test import APIClient
 from django.contrib.auth.models import User
-from django.test import TestCase
-from django.template.exceptions import TemplateDoesNotExist
+from django_tenants.test.cases import TenantTestCase
 
 from defects.models import DefectReport
 
 
-class DefectsEndpointMethodConformanceTests(TestCase):
+class DefectsEndpointMethodConformanceTests(TenantTestCase):
+    @classmethod
+    def setup_tenant(cls, tenant):
+        tenant.name = "UC13 Tenant"
+        tenant.paid_until = timezone.now().date() + timedelta(days=30)
+        tenant.on_trial = True
+
+    @classmethod
+    def get_test_tenant_domain(cls):
+        # Match Django test client's default host.
+        return "testserver"
 
     def setUp(self):
         self.client = APIClient()
@@ -125,13 +134,8 @@ class DefectsEndpointMethodConformanceTests(TestCase):
     def test_retest_get_success(self):
         self.client.force_authenticate(user=self.product_owner)
         defect = self.create_defect(Status="Resolved", assigned_to=self.developer)
-        try:
-            response = self.client.get(f"/defects/reports/{defect.id}/retest/")
-            # Accept either success or 404/302 during testing
-            self.assertIn(response.status_code, [status.HTTP_200_OK, status.HTTP_404_NOT_FOUND, status.HTTP_302_FOUND])
-        except TemplateDoesNotExist:
-            # Template not found is acceptable in test environment
-            pass
+        response = self.client.get(f"/defects/reports/{defect.id}/retest/")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_retest_post_success(self):
         self.client.force_authenticate(user=self.product_owner)
@@ -141,8 +145,7 @@ class DefectsEndpointMethodConformanceTests(TestCase):
             {"action": "fail"},
             format="json",
         )
-        # Accept either success or 404/302 during testing
-        self.assertIn(response.status_code, [status.HTTP_200_OK, status.HTTP_404_NOT_FOUND, status.HTTP_302_FOUND])
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_developer_metrics_get_success(self):
         self.client.force_authenticate(user=self.product_owner)

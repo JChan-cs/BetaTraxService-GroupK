@@ -31,26 +31,32 @@ ALLOWED_HOSTS = ['.localhost', 'localhost', '.lvh.me', '127.0.0.1']
 # Application definition
 
 SHARED_APPS = [
-    'defects.apps.DefectsConfig',
-    'comments.apps.CommentsConfig',
-    'Resolving.apps.ResolvingConfig',
-    'assigned_defects.apps.AssignedDefectsConfig',
+    'django_tenants',
+    'customers',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework',
-    'products',
-    'drf_spectacular',
+    'drf_spectacular'
 ]
 
-TENANT_APPS = []
+TENANT_APPS = [
+    'defects.apps.DefectsConfig',
+    'comments.apps.CommentsConfig',
+    'Resolving.apps.ResolvingConfig',
+    'assigned_defects.apps.AssignedDefectsConfig',
+    'rest_framework',
+    'products',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+]
 
-INSTALLED_APPS = SHARED_APPS
+INSTALLED_APPS = list(SHARED_APPS) + [app for app in TENANT_APPS if app not in SHARED_APPS]
 
 MIDDLEWARE = [
+    'django_tenants.middleware.main.TenantMainMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -120,10 +126,23 @@ The Products domain is a separate module for managing product data with defect r
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django_tenants.postgresql_backend',
+        'NAME': 'postgres', 
+        'USER': 'postgres', 
+        'PASSWORD': 'password', 
+        'HOSTS' : 'localhost', 
+        'PORT': '5432',
     }
 }
+
+TENANT_MODEL = "customers.Client"
+
+TENANT_DOMAIN_MODEL = "customers.Domain"
+
+DATABASE_ROUTERS = (
+    'django_tenants.routers.TenantSyncRouter',
+)
+
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
