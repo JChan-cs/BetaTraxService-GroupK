@@ -1,0 +1,29 @@
+[run]
+# Run coverage on the Django test suite
+source = .
+omit =
+    */migrations/*
+    */tests.py
+    */site-packages/*
+    manage.py
+    */wsgi.py
+    */asgi.py
+    demo/settings.py
+    demo/urls.py
+
+[report]
+# Report on coverage
+precision = 2
+show_missing = True
+skip_covered = False
+
+# Focus on defects app metrics.py for full coverage demonstration
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    raise AssertionError
+    raise NotImplementedError
+    if __name__ == .__main__.:
+
+[html]
+directory = htmlcov
