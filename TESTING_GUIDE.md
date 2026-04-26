@@ -18,47 +18,92 @@ This document explains how to run automated tests for BetaTrax, measure code cov
 
 ## Setup
 
-### 1. Install Coverage.py
+### 1. Install Required Packages
 ```bash
 cd /Users/mct61674/Desktop/BetaTraxService-GroupK
-pip install coverage==7.4.1
-```
-
-Or if using requirements.txt:
-```bash
 pip install -r requirements.txt
+pip install factory_boy django-tenants psycopg2-binary
 ```
 
-### 2. Navigate to Project Directory
+### 2. PostgreSQL Configuration (Multi-Tenant Setup)
+
+#### Option A: Using Docker
+BetaTrax uses PostgreSQL with separate-schema multi-tenancy via `django-tenants`. To run tests locally:
+
+```bash
+# Start PostgreSQL container using docker-compose
+docker-compose up -d
+
+# Or using docker CLI
+docker run --name betatrax_postgres \
+  -e POSTGRES_USER=betatrax \
+  -e POSTGRES_PASSWORD=betatrax \
+  -e POSTGRES_DB=betatrax \
+  -p 5432:5432 \
+  -d postgres:13
+```
+
+#### Option B: Manual PostgreSQL Installation
+1. Install PostgreSQL locally (macOS: `brew install postgresql`)
+2. Start PostgreSQL service (macOS: `brew services start postgresql`)
+3. Create database and user:
+   ```bash
+   createdb betatrax
+   psql -d betatrax -c "CREATE USER betatrax WITH PASSWORD 'betatrax';"
+   psql -d betatrax -c "ALTER USER betatrax CREATEDB;"
+   ```
+
+### 3. Verify Database Connection
+```bash
+psql -h localhost -U betatrax -d betatrax
+# If connection succeeds, exit with \q
+```
+
+### 4. Migrate Databases
+Navigate to the project and initialize tenant schemas:
+```bash
+cd /Users/mct61674/Desktop/BetaTraxService-GroupK/BetaTrax
+python manage.py migrate_schemas --executor=sequential
+```
+
+### 5. Navigate to Project Directory
 ```bash
 cd /Users/mct61674/Desktop/BetaTraxService-GroupK/BetaTrax
 ```
 
 ## Running Tests
 
-### Option 1: Run All Tests (Quickest)
-```bash
-python manage.py test
-```
+### Tenant-Aware Test Execution
+BetaTrax uses `django-tenants` for multi-tenant support. All tests in `defects/tests/` use `TenantTestCase` and require PostgreSQL.
 
-This runs all tests and shows results:
-- ✓ Passes
-- ✗ Failures
-- Test count
+**Important**: Ensure PostgreSQL is running before executing tests!
+
+### Option 1: Run All Tests with Tenant Support
+```bash
+python manage.py test defects.tests
+```
 
 ### Option 2: Run Tests with Verbose Output
 ```bash
-python manage.py test --verbosity=2
+python manage.py test --verbosity=2 defects.tests
 ```
 
 ### Option 3: Run Specific Test Class
 ```bash
-python manage.py test defects.tests.DeveloperMetricsTestCase
+python manage.py test defects.tests.DeveloperMetricsTests
 ```
 
 ### Option 4: Run Single Test Method
 ```bash
-python manage.py test defects.tests.DeveloperMetricsTestCase.test_good_classification_low_reopen_ratio
+python manage.py test defects.tests.DeveloperMetricsTests.test_good_rating
+```
+
+### Option 5: Using the Automated Test Runner Script
+```bash
+chmod +x run_tests.sh
+./run_tests.sh             # Run tests only
+./run_tests.sh --coverage  # Run with coverage
+./run_tests.sh --html      # Generate HTML coverage report
 ```
 
 ## Coverage Analysis
