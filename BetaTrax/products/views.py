@@ -88,10 +88,38 @@ class ProductViewSet(viewsets.ModelViewSet):
         return Product.objects.none()
 
     def perform_create(self, serializer):
-        serializer.save(product_owner=self.request.user)
+        # When creating via API, the authenticated user becomes owner unless
+        # a product_owner is explicitly provided and permitted by serializer.
+        # If the request contains 'developers' as repeated params from the
+        # HTML form (name='developer'), DRF will already make that available
+        # in serializer.validated_data. We simply save here.
+        serializer.save()
 
 # HTML dashboard view
 @login_required
 def product_dashboard(request):
     products = Product.objects.filter(product_owner=request.user)
+
+    if request.method == 'POST':
+        # Collect developers list from repeated 'developer' inputs
+        developers = request.POST.getlist('developer')
+
+        form_data = {
+            'product_id': request.POST.get('product_id'),
+            'version': request.POST.get('version'),
+            'name': request.POST.get('name'),
+            'status': request.POST.get('status') or 'In progress',
+            # product_owner submitted as PK (if provided). If not provided,
+            # default to request.user
+            'product_owner': request.POST.get('product_owner') or request.user.id,
+            'developers': developers,
+        }
+
+        serializer = ProductSerializer(data=form_data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return render(request, 'products/dashboard.html', {'products': products, 'success': True})
+        else:
+            return render(request, 'products/dashboard.html', {'products': products, 'errors': serializer.errors, 'form_data': form_data})
+
     return render(request, 'products/dashboard.html', {'products': products})
