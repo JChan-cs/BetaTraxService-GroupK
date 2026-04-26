@@ -1,6 +1,9 @@
 from rest_framework import viewsets, permissions
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import get_user_model
+from django.db.models import Q
+import json
 from .models import Product
 from .serializers import ProductSerializer
 
@@ -88,10 +91,73 @@ class ProductViewSet(viewsets.ModelViewSet):
         return Product.objects.none()
 
     def perform_create(self, serializer):
-        serializer.save(product_owner=self.request.user)
+        # When creating via API, the authenticated user becomes owner unless
+        # a product_owner is explicitly provided and permitted by serializer.
+        # If the request contains 'developers' as repeated params from the
+        # HTML form (name='developer'), DRF will already make that available
+        # in serializer.validated_data. We simply save here.
+        serializer.save()
 
 # HTML dashboard view
 @login_required
 def product_dashboard(request):
+    User = get_user_model()
     products = Product.objects.filter(product_owner=request.user)
-    return render(request, 'products/dashboard.html', {'products': products})
+    owners = User.objects.filter(
+        Q(is_superuser=True) | Q(groups__name='ProductOwner'),
+        is_active=True,
+    ).distinct()
+    developer_options = User.objects.filter(is_active=True, groups__name='Developer').distinct()
+
+    if request.method == 'POST':
+        # Collect developers list from repeated 'developer' inputs
+        selected_developers = request.POST.getlist('developer')
+
+        form_data = {
+            'product_id': request.POST.get('product_id'),
+            'version': request.POST.get('version'),
+            'name': request.POST.get('name'),
+            'status': request.POST.get('status') or 'In progress',
+            'product_owner': request.POST.get('product_owner'),
+            'developers': selected_developers,
+        }
+
+        serializer = ProductSerializer(data=form_data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            products = Product.objects.filter(product_owner=request.user)
+            return render(
+                request,
+                'products/dashboard.html',
+                {
+                    'products': products,
+                    'owners': owners,
+                    'developers': developer_options,
+                    'pre_selected_developers_json': '[]',
+                    'success': True,
+                },
+            )
+        else:
+            return render(
+                request,
+                'products/dashboard.html',
+                {
+                    'products': products,
+                    'owners': owners,
+                    'developers': developer_options,
+                    'errors': serializer.errors,
+                    'form_data': form_data,
+                    'pre_selected_developers_json': json.dumps(selected_developers),
+                },
+            )
+
+    return render(
+        request,
+        'products/dashboard.html',
+        {
+            'products': products,
+            'owners': owners,
+            'developers': developer_options,
+            'pre_selected_developers_json': '[]',
+        },
+    )
