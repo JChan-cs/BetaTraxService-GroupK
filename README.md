@@ -21,6 +21,7 @@ no longer possible to keep an adequate history of defect resolution and decision
 service has thus been developed to solve these problems.  It will be used for all the company’s products and, in the 
 future, may be rolled out as a product itself, for adoption by other software development companies. 
 
+
 Main Interfaces:
 
 1. **Dashboard:** Top navigation bar with role‑based links.
@@ -33,6 +34,7 @@ Main Interfaces:
 8. **Tester Retest View:** Area to allow Tester to comment on defect after a Developer modified the code.
 9. **Product Owner Confirm View:** Area to allow Product Owner to marks defect as solved or reopen if failed.
 10. **Comment Section:** Section that display progress on all defects. Product Owners and Developer can click on individual comments to enact Evaluation/Assignment/Vertification.
+
 
 Other Functionalities:
 * **Developer Metrics Test:** Betatrax measures effectiveness of Developers in terms of the ratio of their defects reopened vs. defects they have reported as fixed.  This will give a rough indication of whether a Developer is fixing defects successfully.
@@ -100,9 +102,14 @@ BetaTesters submit defect report through external API, currently coded as a subm
 ## Repository structure
 
 ```sh
+├── BetaTrax/                     # Contains main Script for BetaTrax
+├── AUTOMATED_TESTING_SUMMARY.md  # Summarizes the automated testing implementation for BetaTrax
+├── POSTGRES_SETUP.md             # Guideline to setup PostgreSQL for BetaTrax
 ├── README.md                     # Readme for the current repository
-├── BetaTrax/                     # Contains main Script
-├── requirements.txt              # Contains list of required package and dependencies    
+├── TESTING_GUIDE.md              # Guideline to run Automatic Tests for BetaTrax
+├── docker-compose.yml            # Docker Compose for PostgreSQL + django-tenants setup
+├── requirements.txt              # Contains list of required packages and dependencies
+├── run_tests.sh                  # Code to run Tests
 ```
 ---
 ## Limitations
