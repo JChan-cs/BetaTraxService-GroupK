@@ -45,6 +45,14 @@ class DefectReport(models.Model):
         related_name='assigned_defects',
         help_text="The user to whom this defect is currently assigned. Can be null if unassigned."
     )
+    duplicate_of = models.ForeignKey(
+        'self',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='duplicates',
+        help_text='Original report if this report is marked as duplicate.',
+    )
     
 
     def __str__(self):

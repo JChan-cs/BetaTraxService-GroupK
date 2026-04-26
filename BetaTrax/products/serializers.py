@@ -21,19 +21,38 @@ class ProductSerializer(serializers.ModelSerializer):
     def validate(self, data):
         owner = data.get('product_owner')
         developers = data.get('developers', [])
+        instance = self.instance  # 获取当前正在编辑的实例（如果是更新操作）
 
-        # Owner must be a ProductOwner or superuser
+        # --- 1. 权限组检查 ---
         if not (owner.is_superuser or owner.groups.filter(name='ProductOwner').exists()):
-            raise serializers.ValidationError({'product_owner': 'Selected owner must be in ProductOwner group or be superuser.'})
+            raise serializers.ValidationError({'product_owner': 'User is not ProductOwner。'})
 
-        # Developers must be in Developer group or superuser
         for dev in developers:
             if not (dev.is_superuser or dev.groups.filter(name='Developer').exists()):
-                raise serializers.ValidationError({'developers': f'User {dev.username} is not in Developer group.'})
+                raise serializers.ValidationError({'developers': f'User {dev.username} is not Developer.'})
 
-        # Owner cannot also be a developer
+        # --- 2. 角色冲突检查 ---
         if owner in developers:
-            raise serializers.ValidationError('Owner cannot also be listed as a developer.')
+            raise serializers.ValidationError('Product owner cannot be developer.')
+
+        # --- 3. 负责人唯一性检查 (针对 OneToOneField) ---
+        # 检查该用户是否已经是其他产品的 Owner
+        owner_query = Product.objects.filter(product_owner=owner)
+        if instance:
+            owner_query = owner_query.exclude(pk=instance.pk)
+        
+        if owner_query.exists():
+            raise serializers.ValidationError({'product_owner': f'User {owner.username} is already responsible for other product。'})
+
+        # --- 4. 开发者唯一性检查 (针对 DeveloperAssignment 的 OneToOneField) ---
+        for dev in developers:
+            dev_query = DeveloperAssignment.objects.filter(developer=dev)
+            if instance:
+                # 如果是更新，排除当前产品已有的分配记录
+                dev_query = dev_query.exclude(product=instance)
+            
+            if dev_query.exists():
+                raise serializers.ValidationError({'developers': f'Developer {dev.username} is already responsible for other product.'})
 
         return data
 

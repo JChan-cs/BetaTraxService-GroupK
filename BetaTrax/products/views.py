@@ -1,6 +1,9 @@
 from rest_framework import viewsets, permissions
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import get_user_model
+from django.db.models import Q
+import json
 from .models import Product
 from .serializers import ProductSerializer
 
@@ -98,28 +101,63 @@ class ProductViewSet(viewsets.ModelViewSet):
 # HTML dashboard view
 @login_required
 def product_dashboard(request):
+    User = get_user_model()
     products = Product.objects.filter(product_owner=request.user)
+    owners = User.objects.filter(
+        Q(is_superuser=True) | Q(groups__name='ProductOwner'),
+        is_active=True,
+    ).distinct()
+    developer_options = User.objects.filter(is_active=True, groups__name='Developer').distinct()
 
     if request.method == 'POST':
         # Collect developers list from repeated 'developer' inputs
-        developers = request.POST.getlist('developer')
+        selected_developers = request.POST.getlist('developer')
 
         form_data = {
             'product_id': request.POST.get('product_id'),
             'version': request.POST.get('version'),
             'name': request.POST.get('name'),
             'status': request.POST.get('status') or 'In progress',
-            # product_owner submitted as PK (if provided). If not provided,
-            # default to request.user
-            'product_owner': request.POST.get('product_owner') or request.user.id,
-            'developers': developers,
+            'product_owner': request.POST.get('product_owner'),
+            'developers': selected_developers,
         }
 
         serializer = ProductSerializer(data=form_data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
-            return render(request, 'products/dashboard.html', {'products': products, 'success': True})
+            products = Product.objects.filter(product_owner=request.user)
+            return render(
+                request,
+                'products/dashboard.html',
+                {
+                    'products': products,
+                    'owners': owners,
+                    'developers': developer_options,
+                    'pre_selected_developers_json': '[]',
+                    'success': True,
+                },
+            )
         else:
-            return render(request, 'products/dashboard.html', {'products': products, 'errors': serializer.errors, 'form_data': form_data})
+            return render(
+                request,
+                'products/dashboard.html',
+                {
+                    'products': products,
+                    'owners': owners,
+                    'developers': developer_options,
+                    'errors': serializer.errors,
+                    'form_data': form_data,
+                    'pre_selected_developers_json': json.dumps(selected_developers),
+                },
+            )
 
-    return render(request, 'products/dashboard.html', {'products': products})
+    return render(
+        request,
+        'products/dashboard.html',
+        {
+            'products': products,
+            'owners': owners,
+            'developers': developer_options,
+            'pre_selected_developers_json': '[]',
+        },
+    )

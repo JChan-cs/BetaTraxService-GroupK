@@ -241,7 +241,7 @@ class DefectReportViewSet(
                 ]
             elif user.groups.filter(name='Developer').exists():
                 role = 'Developer'
-                links = [{"name": "My Assigned Tasks", "url": "/defects/reports/?Status=Assigned", "method": "GET"},
+                links = [{"name": "My Assigned Tasks", "url": "/assigned/assigned", "method": "GET"},
                          {"name": "Open Defects (Available)", 'url': '/defects/reports/open', "method": 'GET'},
                          {'name': 'Comments', 'url': '/comments/', 'method': 'GET'}
                         ]
@@ -468,6 +468,38 @@ class DefectReportViewSet(
             serializer.save()
             return redirect("assigned_defects")
         return render(request, 'defects/mark_fixed.html', context={"defect": defect})
+
+    @action(detail=True, methods=["get", "post"], url_path='cannot_reproduce', permission_classes=[IsAuthenticated])
+    def cannot_reproduce(self, request, pk=None):
+        defect = self.get_object()
+
+        if defect.Status != "Assigned" or defect.assigned_to != request.user:
+            return Response(
+                {'error': 'Only assigned developer can access this endpoint'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        if request.method == "POST":
+            serializer = DefectReportStatusSerializer(
+                defect,
+                data={
+                    "Status": "Cannot reproduce"
+                },
+                context={"request": request},
+                partial=False,
+            )
+            if not serializer.is_valid():
+                messages.error(request, "Unable to mark this defect as Cannot reproduce.")
+                return render(
+                    request,
+                    'defects/cannot_reproduce.html',
+                    context={"defect": defect, "errors": serializer.errors},
+                    status=400,
+                )
+            serializer.save()
+            return redirect("assigned_defects")
+        return render(request, 'defects/cannot_reproduce.html', context={"defect": defect})
+
     @extend_schema(summary="Get developer metrics")
     @action(detail=False, methods=['get'], url_path='developer-metrics/(?P<user_id>[0-9]+)', permission_classes=[IsAuthenticated])
     def developer_metrics(self, request, user_id=None):
@@ -489,6 +521,9 @@ class DefectReportViewSet(
     def developers(self, request):
         """List developer ratings with links to individual profiles (Product Owner only)."""
         if not request.user.groups.filter(name='ProductOwner').exists():
+            if request.accepted_renderer.format == 'html':
+                messages.error(request, "Only Product Owners can view developer ratings.")
+                return redirect('defectreport-dashboard')
             return Response(
                 {"detail": "Only Product Owners can view developer ratings."},
                 status=status.HTTP_403_FORBIDDEN,
@@ -515,6 +550,9 @@ class DefectReportViewSet(
     def developer_profile(self, request, user_id=None):
         """Show a developer profile with rating details (Product Owner only)."""
         if not request.user.groups.filter(name='ProductOwner').exists():
+            if request.accepted_renderer.format == 'html':
+                messages.error(request, "Only Product Owners can view developer profiles.")
+                return redirect('defectreport-dashboard')
             return Response(
                 {"detail": "Only Product Owners can view developer profiles."},
                 status=status.HTTP_403_FORBIDDEN,
@@ -522,6 +560,9 @@ class DefectReportViewSet(
 
         developer = get_object_or_404(User, pk=user_id)
         if not developer.groups.filter(name='Developer').exists():
+            if request.accepted_renderer.format == 'html':
+                messages.error(request, "Requested user is not a developer.")
+                return redirect('defectreport-developers')
             return Response(
                 {"detail": "Requested user is not a developer."},
                 status=status.HTTP_400_BAD_REQUEST,
