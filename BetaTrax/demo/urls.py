@@ -14,9 +14,11 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from os import name
+
 from django.contrib import admin
 from django.urls import path, include
-from django.views.generic import TemplateView
+from django.views.generic import RedirectView
 
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
@@ -27,7 +29,7 @@ urlpatterns = [
     path('resolved/', include('Resolving.urls')),
     path('assigned/', include('assigned_defects.urls'), name='assigned_defects'),
     path('product_reg/', include('products.urls')), 
-    path('', TemplateView.as_view(template_name='index.html'), name='home'),
+    path('', RedirectView.as_view(url='defects/reports/dashboard', permanent=False)),
     
     # API schema and documentation
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
