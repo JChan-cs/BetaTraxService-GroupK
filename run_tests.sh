@@ -69,6 +69,23 @@ if [ -f ".venv/bin/activate" ]; then
     echo -e "${GREEN}✓ Virtual environment activated${NC}\n"
 fi
 
+# Check PostgreSQL connection (required for django-tenants)
+echo -e "${YELLOW}Checking PostgreSQL connection (required for django-tenants)...${NC}"
+if ! command -v psql &> /dev/null; then
+    echo -e "${RED}✗ psql not found. Please install PostgreSQL.${NC}"
+    echo -e "${YELLOW}  See POSTGRES_SETUP.md for setup instructions.${NC}\n"
+    exit 1
+fi
+
+if ! psql -h localhost -U betatrax -d betatrax -c "SELECT 1" > /dev/null 2>&1; then
+    echo -e "${RED}✗ Cannot connect to PostgreSQL database.${NC}"
+    echo -e "${YELLOW}  Expected: betatrax@localhost:5432${NC}"
+    echo -e "${YELLOW}  Please ensure PostgreSQL is running and configured correctly.${NC}"
+    echo -e "${YELLOW}  See POSTGRES_SETUP.md for detailed setup instructions.${NC}\n"
+    exit 1
+fi
+echo -e "${GREEN}✓ PostgreSQL connection verified${NC}\n"
+
 # Check Python and Django
 echo -e "${YELLOW}Checking environment...${NC}"
 python --version
@@ -82,9 +99,9 @@ echo ""
 
 # Run tests
 if [ "$COVERAGE_MODE" = true ]; then
-    echo -e "${YELLOW}Running tests with coverage...${NC}\n"
+    echo -e "${YELLOW}Running tests with coverage (tenant-aware)...${NC}\n"
     coverage erase
-    coverage run --source='.' manage.py test --verbosity=$VERBOSE
+    coverage run --source='.' manage.py test defects.tests --verbosity=$VERBOSE
     
     echo -e "\n${BLUE}================================${NC}"
     echo -e "${BLUE}Coverage Report${NC}"
@@ -97,9 +114,9 @@ if [ "$COVERAGE_MODE" = true ]; then
     
     # Metrics.py specific coverage
     echo -e "\n${BLUE}================================${NC}"
-    echo -e "${BLUE}Metrics Module Coverage (Critical)${NC}"
+    echo -e "${BLUE}Developer Effectiveness Metrics Coverage (Critical)${NC}"
     echo -e "${BLUE}================================${NC}\n"
-    coverage report -m defects/metrics.py || echo "Metrics module analysis completed"
+    coverage report -m defects/developer_metrics.py || echo "Metrics module analysis completed"
     
     if [ "$HTML_REPORT" = true ]; then
         echo -e "\n${YELLOW}Generating HTML coverage report...${NC}"
@@ -114,8 +131,8 @@ if [ "$COVERAGE_MODE" = true ]; then
         fi
     fi
 else
-    echo -e "${YELLOW}Running tests (without coverage)...${NC}\n"
-    python manage.py test --verbosity=$VERBOSE
+    echo -e "${YELLOW}Running tenant-aware tests (defects.tests)...${NC}\n"
+    python manage.py test defects.tests --verbosity=$VERBOSE
 fi
 
 echo -e "\n${GREEN}================================${NC}"
