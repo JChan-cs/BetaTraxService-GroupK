@@ -1,42 +1,195 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head><title>Product Dashboard</title></head>
-<body>
+  <head>
+    <title>Product Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      .pill {
+        display: inline-block;
+        padding: 6px 10px;
+        margin: 4px;
+        background: #eee;
+        border-radius: 999px;
+      }
+      .danger {
+        color: #a00;
+      }
+    </style>
+    <script>
+      function addDeveloper() {
+        const sel = document.getElementById("developer_picker");
+        const id = sel.value;
+        const name = sel.options[sel.selectedIndex].text;
+        if (!id) return;
+        const list = document.getElementById("selected_developers");
+        // prevent duplicates
+        if (document.getElementById("dev_" + id)) return;
+        const span = document.createElement("span");
+        span.className = "pill";
+        span.id = "dev_" + id;
+        span.innerText = name + " ";
+        const del = document.createElement("button");
+        del.type = "button";
+        del.innerText = "Delete";
+        del.onclick = function () {
+          span.remove();
+          syncHiddenInputs();
+        };
+        span.appendChild(del);
+        list.appendChild(span);
+        syncHiddenInputs();
+      }
+
+      function syncHiddenInputs() {
+        const container = document.getElementById("hidden_developers");
+        container.innerHTML = "";
+        const pills = document.getElementById("selected_developers").children;
+        for (let i = 0; i < pills.length; i++) {
+          const id = pills[i].id.replace("dev_", "");
+          const inp = document.createElement("input");
+          inp.type = "hidden";
+          inp.name = "developer";
+          inp.value = id;
+          container.appendChild(inp);
+        }
+      }
+
+      window.addEventListener("DOMContentLoaded", function () {
+        // If server returned form_data, pre-populate selected developers
+        const existing = JSON.parse(
+          document.getElementById("pre_selected_devs")?.textContent || "[]",
+        );
+        for (const e of existing) {
+          const sel = document.getElementById("developer_picker");
+          // find option text
+          let text = e;
+          const opt = sel.querySelector('option[value="' + e + '"]');
+          if (opt) text = opt.text;
+          const span = document.createElement("span");
+          span.className = "pill";
+          span.id = "dev_" + e;
+          span.innerText = text + " ";
+          const del = document.createElement("button");
+          del.type = "button";
+          del.innerText = "Delete";
+          del.onclick = function () {
+            span.remove();
+            syncHiddenInputs();
+          };
+          span.appendChild(del);
+          document.getElementById("selected_developers").appendChild(span);
+        }
+        syncHiddenInputs();
+      });
+    </script>
+  </head>
+  <body>
     <h1>Your Products</h1>
     {% if products %}
-        <ul>
-        {% for p in products %}
-            <li>{{ p.name }} (ID: {{ p.product_id }}, version {{ p.version }}) – Status: {{ p.status }}</li>
-        {% endfor %}
-        </ul>
+    <ul>
+      {% for p in products %}
+      <li>
+        {{ p.name }} (ID: {{ p.product_id }}, version {{ p.version }}) – Status:
+        {{ p.status }}
+      </li>
+      {% endfor %}
+    </ul>
     {% else %}
-        <p>No products yet. Use the API to create one.</p>
+    <p>No products yet.</p>
     {% endif %}
-    <div><a href="/product_reg/products/" 
-        target="_blank"
-        rel="noopener noreferrer"
-        style="
-        display: inline-block;
-        padding: 8px 12px;
-        margin-left: 15px;
-        margin-bottom: 15px;
-        border-radius: 6px;
-        background: #007bff;
-        color: #fff;
-        text-decoration: none;">
-        Add new Product</a></div>
-    <div><a href="/defects/reports/dashboard/"
-        target="_blank"
-        rel="noopener noreferrer"
-        style="
-        display: inline-block;
-        padding: 8px 12px;
-        margin-left: 15px;
-        border-radius: 6px;
-        background: #007bff;
-        color: #fff;
-        text-decoration: none;">
-        Return to Dashboard</a></div>
-    
-</body>
+
+    <h2>Register a new product</h2>
+    {% if errors %}
+    <div class="danger">
+      <strong>Errors:</strong>
+      <pre>{{ errors|safe }}</pre>
+    </div>
+    {% endif %} {% if success %}
+    <div style="color: green">Product created successfully.</div>
+    {% endif %}
+
+    <form method="post">
+      {% csrf_token %}
+      <div>
+        <label
+          >Product ID:
+          <input
+            name="product_id"
+            value="{{ form_data.product_id|default:'' }}"
+        /></label>
+      </div>
+      <div>
+        <label
+          >Name: <input name="name" value="{{ form_data.name|default:'' }}"
+        /></label>
+      </div>
+      <div>
+        <label
+          >Version:
+          <input name="version" value="{{ form_data.version|default:'' }}"
+        /></label>
+      </div>
+      <div>
+        <label
+          >Status:
+          <select name="status">
+            <option
+              value="In progress"
+              {% if form_data.status == 'In progress' or not form_data.status %}selected{% endif %}
+            >
+              In progress
+            </option>
+            <option
+              value="Complete"
+              {% if form_data.status == 'Complete' %}selected{% endif %}
+            >
+              Complete
+            </option>
+          </select>
+        </label>
+      </div>
+
+      <div>
+        <label>Product Owner:</label>
+        <select name="product_owner" required>
+          <option value="">-- select product owner --</option>
+          {% for o in owners %}
+          <option
+            value="{{ o.id }}"
+            {% if form_data.product_owner == o.id|stringformat:"s" %}selected{% endif %}
+          >
+            {{ o.get_full_name|default:o.username }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div>
+        <label>Developer:</label>
+        <select id="developer_picker">
+          <option value="">-- select developer --</option>
+          {% for u in developers %}
+          <option value="{{ u.id }}">
+            {{ u.get_full_name|default:u.username }}
+          </option>
+          {% endfor %}
+        </select>
+        <button type="button" onclick="addDeveloper()">Add Developer</button>
+      </div>
+
+      <div id="selected_developers" style="margin-top: 8px"></div>
+      <div id="hidden_developers"></div>
+
+      <div>
+        <button type="submit">Create product</button>
+      </div>
+      <script id="pre_selected_devs" type="application/json">
+        {{ pre_selected_developers_json|safe }}
+      </script>
+    </form>
+
+    <div style="margin-top: 18px">
+      <a href="/defects/reports/dashboard/">Return to Dashboard</a>
+    </div>
+  </body>
 </html>

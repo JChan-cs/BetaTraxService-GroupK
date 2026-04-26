@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.core.mail import send_mail
 from .models import DefectReport
 from comments.models import Comment
 
@@ -7,7 +8,7 @@ class DefectReportSerializer(serializers.ModelSerializer):
     class Meta:
         model = DefectReport
         fields = "__all__"
-        read_only_fields = ["Status", "CreatedTime", "UpdatedTime", "assigned_to"]
+        read_only_fields = ["Status", "CreatedTime", "UpdatedTime", "assigned_to", "duplicate_of"]
         extra_kwargs = {
             "Severity": {"required": False},
             "Priority": {"required": False},
@@ -42,6 +43,7 @@ class DefectReportStatusSerializer(serializers.ModelSerializer):
 
         transitions = {
             ("Assigned", "Fixed"): {"role": is_developer, "name": "Developer"},
+            ("Assigned", "Cannot reproduce"): {"role": is_developer, "name": "Developer"},
             ("Fixed", "Resolved"): {"role": is_product_owner, "name": "ProductOwner"},
             ("Fixed", "Reopened"): {"role": is_product_owner, "name": "ProductOwner"},
             ("Reopened", "Assigned"): {"role": is_developer, "name": "Developer"},
@@ -58,11 +60,11 @@ class DefectReportStatusSerializer(serializers.ModelSerializer):
                 f"Only usergroup {rule['name']} can change status from '{old_status}' to '{new_status}'."
             )
 
-        if transition == ("Assigned", "Fixed") and old_instance.assigned_to != request.user:
+        if transition in {("Assigned", "Fixed"), ("Assigned", "Cannot reproduce")} and old_instance.assigned_to != request.user:
             raise serializers.ValidationError(
-                "Only the assigned developer can mark this report as Fixed."
+                "Only the assigned developer can update this Assigned report."
             )
-        if transition == ("Fixed", "Reopened"):
+        if transition in {("Fixed", "Reopened"), ("Assigned", "Cannot reproduce")}:
             # Unassign reopened reports to allow reassignment
             # assign None (PK expected by related field)
             new_instance["assigned_to"] = None
@@ -95,12 +97,16 @@ class DefectEvaluationSerializer(serializers.ModelSerializer):
         if data.get('duplicate_id'):
             if not DefectReport.objects.filter(pk=data['duplicate_id']).exists():
                 raise serializers.ValidationError({"duplicate_id": "The original report ID does not exist."})
+            if self.instance and data['duplicate_id'] == self.instance.pk:
+                raise serializers.ValidationError({"duplicate_id": "A report cannot be a duplicate of itself."})
         return data
 
     def update(self, instance, validated_data):
         # 1. Update standard fields (Severity/Priority)
         instance.Severity = validated_data.get('Severity', instance.Severity)
         instance.Priority = validated_data.get('Priority', instance.Priority)
+        system_message = None
+        duplicate_target = None
 
         # 2. Update Status based on action
         action = validated_data.get('action')
@@ -111,8 +117,10 @@ class DefectEvaluationSerializer(serializers.ModelSerializer):
             instance.Status = 'Rejected'
             system_message = f"System: Report #{instance.id} has been rejected."
         elif action == 'duplicate':
+            duplicate_target = DefectReport.objects.get(pk=validated_data.get('duplicate_id'))
             instance.Status = 'Duplicate'
-            system_message = f"System: Report #{instance.id} marked as duplicate of Report #{validated_data.get('duplicate_id')}."
+            instance.duplicate_of = duplicate_target
+            system_message = f"System: Report #{instance.id} marked as duplicate of Report #{duplicate_target.id}."
         
         instance.save()
 
@@ -122,6 +130,28 @@ class DefectEvaluationSerializer(serializers.ModelSerializer):
             # Create automated status update comment
             if system_message:
                 Comment.objects.create(author=user, defect=instance, text=system_message)
+
+            if action == 'duplicate' and duplicate_target is not None:
+                Comment.objects.create(
+                    author=user,
+                    defect=duplicate_target,
+                    text=f"System: Report #{instance.id} was marked as a duplicate of this report.",
+                )
+
+                recipients = {email for email in [instance.Email, duplicate_target.Email] if email}
+                if recipients:
+                    send_mail(
+                        subject=f"BetaTrax: Duplicate report linked (#{instance.id} -> #{duplicate_target.id})",
+                        message=(
+                            "Hello,\n\n"
+                            f"Report #{instance.id} has been marked as a duplicate of report #{duplicate_target.id}.\n"
+                            f"Current status for report #{instance.id}: {instance.Status}\n"
+                            "You are receiving this because your email is attached to one of the linked reports."
+                        ),
+                        from_email='noreply@betatrax.com',
+                        recipient_list=list(recipients),
+                        fail_silently=True,
+                    )
             
             # Create manual comment text if provided by the PO
             comment_text = validated_data.get('comment_text')
