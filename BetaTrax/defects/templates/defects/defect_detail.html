@@ -23,8 +23,7 @@
       Report #{{ defect.id }} — {{ defect.ReportTitle }}
     </h2>
     <p style="color: #666; margin-top: 0; margin-bottom: 12px">
-      Status: <strong>{{ defect.Status }}</strong> &nbsp; • &nbsp; Created: {{
-      defect.CreatedTime|date:"Y-m-d H:i" }}
+      Status: <strong>{{ defect.Status }}</strong> &nbsp; • &nbsp; Created: {{ defect.CreatedTime|date:"Y-m-d H:i" }}
     </p>
 
     <table style="width: 100%; border-collapse: collapse; margin-bottom: 14px">
@@ -68,8 +67,8 @@
           Assigned
         </td>
         <td style="padding: 6px 8px">
-          {% if defect.assigned_to %}{{ defect.assigned_to.username }}{% else
-          %}-{% endif %}
+          {% if defect.assigned_to %}{{ defect.assigned_to.username }}
+          {% else%}-{% endif %}
         </td>
       </tr>
     </table>
@@ -100,7 +99,7 @@
           white-space: pre-wrap;
         "
       >
-        {{ defect.Steps }}
+{{ defect.Steps }}
       </div>
     </div>
 
@@ -118,36 +117,43 @@
     </p>
   </div>
 
-  <div style="margin-top: 18px">
+<div style="margin-top: 18px">
     <h3 style="margin-bottom: 8px">Comments</h3>
-    {% if comments %}
-    <ul style="list-style: none; padding: 0; margin: 0">
-      {% for c in comments %}
-      <li
-        style="
-          padding: 10px;
-          border: 1px solid #eee;
-          border-radius: 6px;
-          margin-bottom: 8px;
-          background: #fff;
-        "
-      >
-        <div style="font-size: 0.9rem; color: #333; font-weight: 600">
-          {% if c.author %}{{ c.author.username }}{% else %}System{% endif %}
-          <span style="color: #888; font-weight: 400; font-size: 0.85rem">
-            • {{ c.created_at|date:"Y-m-d H:i" }}
-          </span>
-        </div>
-        <div style="margin-top: 6px; white-space: pre-wrap; color: #222">
-          {{ c.text }}
-        </div>
-      </li>
-      {% endfor %}
-    </ul>
+    
+    {% if defect.defect_comments.all %}
+        <ul style="list-style: none; padding: 0; margin: 0">
+            {% for c in defect.defect_comments.all %}
+            <li style="
+                padding: 10px;
+                border: 1px solid #eee;
+                border-radius: 6px;
+                margin-bottom: 8px;
+                background: #fff;
+            ">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                    <span style="font-size: 0.9rem; color: #333; font-weight: 600">
+                        {% if c.author %}
+                            {{ c.author.username }} 
+                            <span style="font-weight: 400; color: #777;">(Author)</span>
+                        {% else %}
+                            System
+                        {% endif %}
+                    </span>
+                    <span style="font-size: 0.8rem; color: #999;">
+                        {{ c.created_at|date:"Y-m-d H:i" }}
+                    </span>
+                </div>
+                
+                <div style="font-size: 0.95rem; color: #444; line-height: 1.4; white-space: pre-wrap;">
+{{ c.text }}
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
     {% else %}
-    <p style="color: #666">No comments yet.</p>
+        <p style="color: #999; font-style: italic;">No comments yet.</p>
     {% endif %}
-  </div>
+</div>
 </div>
 
 {% endblock %}
