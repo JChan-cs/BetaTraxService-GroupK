@@ -72,3 +72,23 @@ class DeveloperMetrics(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - Fixed: {self.defects_fixed}, Reopened: {self.defects_reopened}"
+    
+class Comment(models.Model):
+    defect = models.ForeignKey(
+        DefectReport, 
+        on_delete=models.CASCADE, 
+        related_name='defect_comments'
+    )
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE,
+        related_name='defect_comment_authors'
+    )
+    text = models.TextField()
+    created_at = models.DateTimeField(
+        default=timezone.now,
+        help_text="The time this comment was posted."
+    )
+
+    def __str__(self):
+        return f"Comment by {self.author.username} on {self.defect.id}"
