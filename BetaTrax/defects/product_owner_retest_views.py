@@ -8,6 +8,7 @@ from rest_framework.decorators import action
 from rest_framework.renderers import TemplateHTMLRenderer, JSONRenderer, BrowsableAPIRenderer
 from drf_spectacular.utils import extend_schema
 from django.shortcuts import render, redirect
+from django.http import JsonResponse
 from django.contrib import messages
 
 from .models import DefectReport
@@ -17,6 +18,17 @@ from comments.models import Comment
 
 class ProductOwnerRetestViewsMixin:
     """Mixin providing Product Owner Retest-specific actions for retesting fixed defects"""
+
+    @staticmethod
+    def _wants_json(request):
+        accepted = getattr(request.accepted_renderer, 'format', None)
+        content_type = request.content_type or ''
+        accept_header = request.headers.get('Accept', '')
+        return (
+            accepted == 'json'
+            or 'application/json' in content_type
+            or 'application/json' in accept_header
+        )
 
     @extend_schema(summary="Submit defect retest outcome", description="Product Owner records a retest outcome (pass/fail) for a defect in 'Resolved' status.", methods=["POST"])
     @extend_schema(exclude=True, methods=["GET"])
@@ -34,19 +46,16 @@ class ProductOwnerRetestViewsMixin:
         # Only defects in 'Resolved' status can be retested
         if defect.Status != 'Resolved':
             error_msg = f"Only 'Resolved' defects can be retested. Current status: {defect.Status}"
-            if request.accepted_renderer.format == 'json':
-                return Response(
-                    {"detail": error_msg},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
+            if self._wants_json(request):
+                return JsonResponse({"detail": error_msg}, status=status.HTTP_400_BAD_REQUEST)
             messages.error(request, error_msg)
             return redirect('defectreport-detail', pk=defect.pk)
         
         if request.method == 'POST':
             if not request.user.groups.filter(name='ProductOwner').exists():
                 error_msg = "Only Product Owners can retest defects."
-                if request.accepted_renderer.format == 'json':
-                    return Response({"detail": error_msg}, status=status.HTTP_403_FORBIDDEN)
+                if self._wants_json(request):
+                    return JsonResponse({"detail": error_msg}, status=status.HTTP_403_FORBIDDEN)
                 messages.error(request, error_msg)
                 return redirect('defectreport-detail', pk=defect.pk)
             
@@ -58,8 +67,8 @@ class ProductOwnerRetestViewsMixin:
                 defect.save()
                 success_msg = f"Defect #{defect.id} confirmed as fixed and closed."
                 
-                if request.accepted_renderer.format == 'json':
-                    return Response({
+                if self._wants_json(request):
+                    return JsonResponse({
                         "message": success_msg,
                         "status": defect.Status
                     }, status=status.HTTP_200_OK)
@@ -73,8 +82,8 @@ class ProductOwnerRetestViewsMixin:
                 defect.save()
                 error_msg = f"Defect #{defect.id} reopened. Developer needs to address it again."
                 
-                if request.accepted_renderer.format == 'json':
-                    return Response({
+                if self._wants_json(request):
+                    return JsonResponse({
                         "message": error_msg,
                         "status": defect.Status
                     }, status=status.HTTP_200_OK)
@@ -84,11 +93,8 @@ class ProductOwnerRetestViewsMixin:
             
             else:
                 error_msg = "Invalid action. Use 'pass' or 'fail'."
-                if request.accepted_renderer.format == 'json':
-                    return Response(
-                        {"detail": error_msg},
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
+                if self._wants_json(request):
+                    return JsonResponse({"detail": error_msg}, status=status.HTTP_400_BAD_REQUEST)
                 messages.error(request, error_msg)
         
         comments = Comment.objects.filter(defect=defect).order_by('-created_at')[:50]
