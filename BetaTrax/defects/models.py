@@ -54,7 +54,6 @@ class DefectReport(models.Model):
         help_text='Original report if this report is marked as duplicate.',
     )
     
-
     def __str__(self):
         return f"{self.ReportTitle} - {self.Status}"
 
