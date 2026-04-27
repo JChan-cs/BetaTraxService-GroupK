@@ -18,7 +18,8 @@ from comments.models import Comment
 class ProductOwnerRetestViewsMixin:
     """Mixin providing Product Owner Retest-specific actions for retesting fixed defects"""
 
-    @extend_schema(summary="Submit defect retest outcome", methods=["POST"])
+    @extend_schema(summary="Submit defect retest outcome", description="Product Owner records a retest outcome (pass/fail) for a defect in 'Resolved' status.", methods=["POST"])
+    @extend_schema(exclude=True, methods=["GET"])
     @action(
         detail=True,
         methods=["get", "post"],
@@ -99,6 +100,7 @@ class ProductOwnerRetestViewsMixin:
         }
         return render(request, 'defects/defect_retest.html', context)
     
+    @extend_schema(exclude=True)
     @action(
         detail=True,
         methods=["get"],

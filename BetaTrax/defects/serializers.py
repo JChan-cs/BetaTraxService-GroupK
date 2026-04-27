@@ -46,6 +46,7 @@ class DefectReportStatusSerializer(serializers.ModelSerializer):
             ("Assigned", "Cannot reproduce"): {"role": is_developer, "name": "Developer"},
             ("Fixed", "Resolved"): {"role": is_product_owner, "name": "ProductOwner"},
             ("Fixed", "Reopened"): {"role": is_product_owner, "name": "ProductOwner"},
+            ("Open", "Assigned"): {"role": is_developer, "name": "Developer"},
             ("Reopened", "Assigned"): {"role": is_developer, "name": "Developer"},
         }
 
@@ -68,7 +69,7 @@ class DefectReportStatusSerializer(serializers.ModelSerializer):
             # Unassign reopened reports to allow reassignment
             # assign None (PK expected by related field)
             new_instance["assigned_to"] = None
-        if transition == ("Reopened", "Assigned"):
+        if transition in {("Reopened", "Assigned"), ("Open", "Assigned")}:
             # Reassign to the user performing the action
             # serializers expect a PK value for relational fields when passed in data,
             # so convert the user instance into its PK here.

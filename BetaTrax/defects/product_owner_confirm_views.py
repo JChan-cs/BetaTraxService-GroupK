@@ -8,6 +8,7 @@ from rest_framework.decorators import action
 from rest_framework.renderers import TemplateHTMLRenderer, JSONRenderer, BrowsableAPIRenderer
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from drf_spectacular.utils import extend_schema
 
 from .models import DefectReport
 from .serializers import DefectReportStatusSerializer, DefectEvaluationSerializer
@@ -107,6 +108,7 @@ class ProductOwnerConfirmViewsMixin:
         }
         return render(request, 'defects/defect_evaluation.html', context)
     
+    @extend_schema(exclude=True)
     @action(detail=True, methods=["get"], url_path="evaluate-success", renderer_classes=[TemplateHTMLRenderer])
     def evaluate_success(self, request, pk=None):
         """Success page after evaluation"""

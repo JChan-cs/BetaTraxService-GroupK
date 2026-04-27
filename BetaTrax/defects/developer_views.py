@@ -58,7 +58,7 @@ class DeveloperViewsMixin:
         
         return Response(serializer.data)
 
-    @extend_schema(summary="Assign defect to current developer")
+    @extend_schema(summary="Assign defect to current developer", description="Assigns an unassigned defect report to the currently authenticated developer.")
     @action(detail=True, methods=['patch'], url_path='assign', permission_classes=[IsAuthenticated])
     def assign_to_me(self, request, pk=None):
         """Developer claims/takes a defect to work on"""
@@ -101,6 +101,7 @@ class DeveloperViewsMixin:
         return redirect('defectreport-detail', pk=defect.pk)
 
     @extend_schema(summary="Submit defect fix", methods=['POST'])
+    @extend_schema(exclude=True, methods=['get'])
     @action(detail=True, methods=['get', 'post'], url_path='fix', permission_classes=[IsAuthenticated])
     def fix_defect(self, request, pk=None):
         """Developer view for fixing an assigned defect"""
@@ -164,6 +165,7 @@ class DeveloperViewsMixin:
         }
         return render(request, 'defects/defect_fix_view.html', context)
 
+    @extend_schema(exclude=True)
     @action(detail=True, methods=['get'], url_path='fix-success', renderer_classes=[TemplateHTMLRenderer])
     def fix_success(self, request, pk=None):
         """Success page after submitting fix"""

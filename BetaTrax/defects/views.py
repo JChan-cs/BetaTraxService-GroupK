@@ -145,6 +145,7 @@ class DefectReportViewSet(
         request=DefectReportSerializer,
         methods=["POST"]
     )
+    @extend_schema(exclude=True, methods=["GET"])
     @action(detail=False, methods=['get', 'post'], url_path='submit')
     def submit_defect(self, request):
         """Create a new defect report with initial status set to New."""
@@ -309,6 +310,7 @@ class DefectReportViewSet(
         description="Apply Product Owner decision to accept, reject, or mark a defect report as duplicate.",
         methods=["post"],
         request=DefectEvaluationSerializer,)
+    @extend_schema(exclude=True, methods=["get"])
     @action(detail=True, methods=["get", "post"], url_path="evaluate", permission_classes=[IsAuthenticatedOrReadOnly])
     def evaluate(self, request, pk=None):
         defect = self.get_object()
@@ -357,6 +359,7 @@ class DefectReportViewSet(
         }
         return render(request, 'defects/defect_evaluation.html', context)
     
+    @extend_schema(exclude=True)
     @action(detail=True, methods=["get"], url_path="evaluate-success", renderer_classes=[TemplateHTMLRenderer])
     def evaluate_success(self, request, pk=None):
         defect = self.get_object()
@@ -438,6 +441,7 @@ class DefectReportViewSet(
         serializer = self.get_serializer(tasks, many=True)
         return Response(serializer.data)
     
+    @extend_schema(exclude=True)
     @action(detail=True, methods=["get", "post"], url_path='mark_fixed', permission_classes=[IsAuthenticated])
     def mark_fixed(self, request, pk=None):
         defect = self.get_object()
@@ -469,6 +473,7 @@ class DefectReportViewSet(
             return redirect("assigned_defects")
         return render(request, 'defects/mark_fixed.html', context={"defect": defect})
 
+    @extend_schema(exclude=True)
     @action(detail=True, methods=["get", "post"], url_path='cannot_reproduce', permission_classes=[IsAuthenticated])
     def cannot_reproduce(self, request, pk=None):
         defect = self.get_object()
