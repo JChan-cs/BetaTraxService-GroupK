@@ -39,3 +39,6 @@ class DeveloperAssignment(models.Model):
         help_text='Product this developer is assigned to',
     )
     assigned_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.developer.username} -> {self.product.product_id}"
