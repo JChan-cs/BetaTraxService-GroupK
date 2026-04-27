@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.utils import timezone
 
 class DefectReport(models.Model):
     StatusC = [
@@ -35,7 +36,10 @@ class DefectReport(models.Model):
     Status = models.CharField(max_length=20, choices=StatusC, default="New", help_text="Current status of the defect report.")
     Severity = models.CharField(max_length=20, choices=SeverityC, blank=True, null=True, help_text="The severity level of the defect.")
     Priority = models.CharField(max_length=20, choices=PriorityC, blank=True, null=True, help_text="The priority level of the defect.")
-    CreatedTime = models.DateTimeField(auto_now_add=True)
+    CreatedTime = models.DateTimeField(
+        default=timezone.now, 
+        help_text="The timestamp when the report was created. Can be edited manually."
+    )
     UpdatedTime = models.DateTimeField(auto_now=True)
     assigned_to = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -68,3 +72,23 @@ class DeveloperMetrics(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - Fixed: {self.defects_fixed}, Reopened: {self.defects_reopened}"
+    
+class Comment(models.Model):
+    defect = models.ForeignKey(
+        DefectReport, 
+        on_delete=models.CASCADE, 
+        related_name='defect_comments'
+    )
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE,
+        related_name='defect_comment_authors'
+    )
+    text = models.TextField()
+    created_at = models.DateTimeField(
+        default=timezone.now,
+        help_text="The time this comment was posted."
+    )
+
+    def __str__(self):
+        return f"Comment by {self.author.username} on {self.defect.id}"
