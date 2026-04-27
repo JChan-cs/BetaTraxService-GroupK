@@ -115,7 +115,7 @@ BetaTesters submit defect report through external API, currently coded as a subm
 ## Limitations
 
 * User Registration is currently not supported, must be created by SuperUser via ```/admin```
-* Functionality to send emails to Tester requires API
+* Functionality to send emails to Tester currently not supported, requires external API
 
 
 
