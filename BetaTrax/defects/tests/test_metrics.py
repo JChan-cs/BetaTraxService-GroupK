@@ -1,5 +1,8 @@
-from django.test import TestCase
+from datetime import timedelta
+
 from django.contrib.auth.models import User
+from django.utils import timezone
+from django_tenants.test.cases import TenantTestCase
 from rest_framework.test import APIClient
 from rest_framework import status
 from defects.models import DefectReport, DeveloperMetrics
@@ -9,7 +12,17 @@ from defects.developer_metrics import (
     apply_status_transition_metrics,
 )
 
-class DeveloperMetricsTests(TestCase):
+class DeveloperMetricsTests(TenantTestCase):
+    @classmethod
+    def setup_tenant(cls, tenant):
+        tenant.name = "Developer Metrics Tenant"
+        tenant.paid_until = timezone.now().date() + timedelta(days=30)
+        tenant.on_trial = True
+
+    @classmethod
+    def get_test_tenant_domain(cls):
+        return "testserver"
+
     def setUp(self):
         self.client = APIClient()
         self.developer = User.objects.create_user(username='dev1', password='testpass')

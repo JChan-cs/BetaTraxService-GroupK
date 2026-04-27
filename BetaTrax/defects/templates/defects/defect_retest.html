@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Retest Defect</title>
+</head>
+<body>
+    <h1>Retest Defect #{{ defect.id }}</h1>
+    <p>Status: {{ defect.Status }}</p>
+    <p>Assigned Developer: {% if developer %}{{ developer.username }}{% else %}Unassigned{% endif %}</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" name="action" value="pass">Pass</button>
+        <button type="submit" name="action" value="fail">Fail</button>
+    </form>
+
+    <h2>Recent Comments</h2>
+    <ul>
+        {% for comment in comments %}
+        <li>{{ comment.created_at }} - {{ comment.author }}: {{ comment.content }}</li>
+        {% empty %}
+        <li>No comments yet.</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

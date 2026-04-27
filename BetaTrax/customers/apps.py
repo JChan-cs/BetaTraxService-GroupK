@@ -19,11 +19,19 @@ def create_public_tenant(sender, **kwargs):
         )
 
         if created or not Domain.objects.filter(tenant=tenant).exists():
-            Domain.objects.get_or_create(
-                domain='localhost', 
-                tenant=tenant, 
-                is_primary=True
+            # Domain.domain is globally unique, so look up by domain only.
+            # Then ensure it points to the public tenant.
+            domain_obj, _ = Domain.objects.get_or_create(
+                domain='localhost',
+                defaults={
+                    'tenant': tenant,
+                    'is_primary': True,
+                },
             )
+            if domain_obj.tenant_id != tenant.id or not domain_obj.is_primary:
+                domain_obj.tenant = tenant
+                domain_obj.is_primary = True
+                domain_obj.save(update_fields=['tenant', 'is_primary'])
 
 class CustomersConfig(AppConfig):
     name = 'customers'
