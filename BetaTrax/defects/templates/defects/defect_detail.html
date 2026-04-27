@@ -110,50 +110,12 @@
         >Evaluate</a
       >
       <a
-        href="/defects/reports/open/"
+        href="/defects/reports/dashboard/"
         style="text-decoration: none; color: #ff0000"
-        >Back to Open Defects</a
+        >Back to DashBoard</a
       >
     </p>
   </div>
-
-<div style="margin-top: 18px">
-    <h3 style="margin-bottom: 8px">Comments</h3>
-    
-    {% if defect.defect_comments.all %}
-        <ul style="list-style: none; padding: 0; margin: 0">
-            {% for c in defect.defect_comments.all %}
-            <li style="
-                padding: 10px;
-                border: 1px solid #eee;
-                border-radius: 6px;
-                margin-bottom: 8px;
-                background: #fff;
-            ">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                    <span style="font-size: 0.9rem; color: #333; font-weight: 600">
-                        {% if c.author %}
-                            {{ c.author.username }} 
-                            <span style="font-weight: 400; color: #777;">(Author)</span>
-                        {% else %}
-                            System
-                        {% endif %}
-                    </span>
-                    <span style="font-size: 0.8rem; color: #999;">
-                        {{ c.created_at|date:"Y-m-d H:i" }}
-                    </span>
-                </div>
-                
-                <div style="font-size: 0.95rem; color: #444; line-height: 1.4; white-space: pre-wrap;">
-{{ c.text }}
-                </div>
-            </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p style="color: #999; font-style: italic;">No comments yet.</p>
-    {% endif %}
-</div>
 </div>
 
 {% endblock %}

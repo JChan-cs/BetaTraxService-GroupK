@@ -78,7 +78,7 @@ class DefectReportStatusSerializer(serializers.ModelSerializer):
 
 class DefectEvaluationSerializer(serializers.ModelSerializer):
     # These fields aren't on the model but are needed for the triage process
-    action = serializers.ChoiceField(choices=['accept', 'reject', 'duplicate'], required=False)
+    action = serializers.ChoiceField(choices=['accept', 'reject', 'duplicate', 'comment'], required=False)
     duplicate_id = serializers.IntegerField(required=False, allow_null=True)
     comment_text = serializers.CharField(required=False, allow_blank=True, write_only=True)
 
