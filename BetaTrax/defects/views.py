@@ -506,7 +506,7 @@ class DefectReportViewSet(
         return render(request, 'defects/cannot_reproduce.html', context={"defect": defect})
 
     @extend_schema(summary="Get developer metrics")
-    @action(detail=False, methods=['get'], url_path='developer-metrics/(?P<user_id>[0-9]+)', permission_classes=[IsAuthenticated])
+    @action(detail=False, methods=['get'], url_path='developer-metrics/(?P<user_id>[0-9]+)', permission_classes=[IsAuthenticated], renderer_classes=[JSONRenderer, BrowsableAPIRenderer])
     def developer_metrics(self, request, user_id=None):
         """Return effectiveness rating for a developer."""
         from .models import DeveloperMetrics
