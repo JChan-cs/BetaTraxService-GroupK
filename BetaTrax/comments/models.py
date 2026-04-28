@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 class Comment(models.Model):
     author = models.ForeignKey(
@@ -12,7 +13,7 @@ class Comment(models.Model):
     )
     defect = models.ForeignKey('defects.DefectReport', on_delete=models.CASCADE, related_name='comments', null=True, help_text="The defect report this comment is associated with.")
     created_at = models.DateTimeField(
-        auto_now_add=True,
+        default= timezone.now,
         help_text="The timestamp when the comment was created."
     )
 

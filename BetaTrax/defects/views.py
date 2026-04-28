@@ -244,6 +244,7 @@ class DefectReportViewSet(
                 role = 'Developer'
                 links = [{"name": "My Assigned Tasks", "url": "/assigned/assigned", "method": "GET"},
                          {"name": "Open Defects (Available)", 'url': '/defects/reports/open', "method": 'GET'},
+                         {'name': 'All Reports', 'url': '/defects/reports/', 'method': 'GET'},
                          {'name': 'Comments', 'url': '/comments/', 'method': 'GET'}
                         ]
             else:
@@ -317,7 +318,7 @@ class DefectReportViewSet(
         serializer = None
 
         if request.method == 'POST':
-            if not request.user.groups.filter(name='ProductOwner').exists():
+            if not request.user.groups.filter(name='ProductOwner').exists() and not comment_text:
                 error_msg = "Only Product Owners can evaluate reports."
                 if request.accepted_renderer.format == 'json':
                     return Response({"detail": error_msg}, status=status.HTTP_403_FORBIDDEN)
